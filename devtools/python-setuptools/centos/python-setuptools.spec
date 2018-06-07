@@ -26,7 +26,7 @@ Summary:        Easily build and distribute Python packages
 Group:          Applications/System
 # LIcensing is in flux, see https://bitbucket.org/pypa/setuptools/issues/132/missing-license
 License:        (Python or ZPLv2.0) and ASL 2.0
-URL:            https://pypi.python.org/pypi/%{srcname}
+URL:             https://pypi.org/project/setuptools/#id139/%{srcname}
 #Source0:        https://files.pythonhosted.org/packages/source/s/%{srcname}/%{srcname}-%{version}.tar.gz
 Source0:         python-setuptools-v38.5.1.tar.gz
 # PSFL
@@ -439,7 +439,7 @@ LANG=en_US.utf8 PYTHONPATH=$(pwd) py.test-%{python3_version}
 
 * Mon Dec  9 2013 Toshio Kuratomi <toshio@fedoraproject.org> - 2.0-1
 - Update to new upstream release with a few things removed from the API:
-  Changelog: https://pypi.python.org/pypi/setuptools#id139
+  Changelog: https://pypi.org/project/setuptools/#id139
 
 * Mon Nov 18 2013 Toshio Kuratomi <toshio@fedoraproject.org> - 1.4-1
 - Update to 1.4 that gives easy_install pypi credential handling
