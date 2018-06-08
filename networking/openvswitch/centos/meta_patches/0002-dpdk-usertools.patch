@@ -1,0 +1,40 @@
+From 1c3ffe85cd258ae5063f078782906f3c4a46b85f Mon Sep 17 00:00:00 2001
+From: Matt Peters <matt.peters@windriver.com>
+Date: Mon, 28 May 2018 08:22:02 -0500
+Subject: [PATCH] dpdk usertools
+
+---
+ SPECS/openvswitch.spec | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/SPECS/openvswitch.spec b/SPECS/openvswitch.spec
+index 71b4634..6950479 100644
+--- a/SPECS/openvswitch.spec
++++ b/SPECS/openvswitch.spec
+@@ -421,6 +421,13 @@ install -p -D -m 0755 \
+ touch $RPM_BUILD_ROOT%{_sysconfdir}/openvswitch/conf.db
+ touch $RPM_BUILD_ROOT%{_sysconfdir}/openvswitch/system-id.conf
+ 
++%if %{with dpdk}
++%ifarch %{dpdkarches}
++  install -m 0755 %{dpdkdir}-%{dpdkver}/usertools/dpdk-pmdinfo.py $RPM_BUILD_ROOT%{_datadir}/openvswitch/scripts/dpdk-pmdinfo.py
++  install -m 0755 %{dpdkdir}-%{dpdkver}/usertools/dpdk-devbind.py $RPM_BUILD_ROOT%{_datadir}/openvswitch/scripts/dpdk-devbind.py
++%endif
++%endif
++
+ # remove unpackaged files
+ rm -f $RPM_BUILD_ROOT/%{_bindir}/ovs-benchmark \
+         $RPM_BUILD_ROOT/%{_bindir}/ovs-docker \
+@@ -656,6 +663,9 @@ fi
+ %{_datadir}/openvswitch/scripts/ovs-vtep
+ %{_datadir}/openvswitch/scripts/ovs-ctl
+ %{_datadir}/openvswitch/scripts/ovs-systemd-reload
++%{_datadir}/openvswitch/scripts/dpdk-pmdinfo.py
++%{_datadir}/openvswitch/scripts/dpdk-devbind.py
++%exclude %{_datadir}/openvswitch/scripts/*.py[oc]
+ %config %{_datadir}/openvswitch/vswitch.ovsschema
+ %config %{_datadir}/openvswitch/vtep.ovsschema
+ %{_bindir}/ovs-appctl
+-- 
+1.8.3.1
+
