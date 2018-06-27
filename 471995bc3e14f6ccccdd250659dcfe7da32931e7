@@ -1,0 +1,8 @@
+Code-Review+2: Bob Church <robert.church@windriver.com>
+Workflow+1: Bob Church <robert.church@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Wed, 27 Jun 2018 20:40:59 +0000
+Reviewed-on: https://review.openstack.org/578523
+Project: openstack/stx-integ
+Branch: refs/heads/master
