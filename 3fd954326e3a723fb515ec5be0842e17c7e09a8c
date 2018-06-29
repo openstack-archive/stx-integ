@@ -1,0 +1,8 @@
+Code-Review+2: Don Penney <don.penney@windriver.com>
+Workflow+1: Jack Ding <Jack.Ding@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Fri, 29 Jun 2018 16:13:38 +0000
+Reviewed-on: https://review.openstack.org/578969
+Project: openstack/stx-integ
+Branch: refs/heads/master
