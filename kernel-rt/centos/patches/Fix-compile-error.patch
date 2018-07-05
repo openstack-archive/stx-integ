@@ -1,0 +1,26 @@
+From 11a995aaf8a883a31ce7da3ccf7ae720cd2e1769 Mon Sep 17 00:00:00 2001
+From: slin14 <shuicheng.lin@intel.com>
+Date: Wed, 4 Jul 2018 05:06:53 +0800
+Subject: [PATCH] Fix compile error
+
+Signed-off-by: slin14 <shuicheng.lin@intel.com>
+---
+ drivers/base/dma-contiguous.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/base/dma-contiguous.c b/drivers/base/dma-contiguous.c
+index a7d5bda..8212518 100644
+--- a/drivers/base/dma-contiguous.c
++++ b/drivers/base/dma-contiguous.c
+@@ -310,7 +310,7 @@ struct page *dma_alloc_from_contiguous(struct device *dev, size_t count,
+ 		align = CONFIG_CMA_ALIGNMENT;
+ 
+ 	pr_debug("%s(cma %p, count %d, align %d)\n", __func__, (void *)cma,
+-		 count, align);
++		 (int)count, align);
+ 
+ 	if (!count)
+ 		return NULL;
+-- 
+2.7.4
+
