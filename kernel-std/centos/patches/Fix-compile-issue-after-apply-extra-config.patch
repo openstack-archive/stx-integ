@@ -1,0 +1,118 @@
+From deb4e5b8c08635d0d91ce59b4fc286f7c4330b81 Mon Sep 17 00:00:00 2001
+From: slin14 <shuicheng.lin@intel.com>
+Date: Mon, 2 Jul 2018 23:07:06 +0800
+Subject: [PATCH] Fix compile issue after apply extra config
+
+Signed-off-by: slin14 <shuicheng.lin@intel.com>
+---
+ arch/x86/include/asm/pgtable.h | 2 ++
+ arch/x86/mm/kaiser.c           | 2 +-
+ drivers/base/dma-contiguous.c  | 2 +-
+ include/asm-generic/pgtable.h  | 3 ++-
+ include/linux/huge_mm.h        | 2 +-
+ include/linux/hugetlb.h        | 2 ++
+ 6 files changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
+index 7da02e6..34642ab 100644
+--- a/arch/x86/include/asm/pgtable.h
++++ b/arch/x86/include/asm/pgtable.h
+@@ -1030,6 +1030,7 @@ static inline int pmd_write(pmd_t pmd)
+ 	return pmd_flags(pmd) & _PAGE_RW;
+ }
+ 
++#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ #if !defined(CONFIG_TRANSPARENT_HUGEPAGE) || \
+ 	(defined(CONFIG_TRANSPARENT_HUGEPAGE) && \
+ 	 !defined(CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD))
+@@ -1038,6 +1039,7 @@ static inline int pud_trans_huge(pud_t pud)
+ 	return 0;
+ }
+ #endif
++#endif
+ 
+ #define __HAVE_ARCH_PMDP_GET_AND_CLEAR
+ static inline pmd_t pmdp_get_and_clear(struct mm_struct *mm, unsigned long addr,
+diff --git a/arch/x86/mm/kaiser.c b/arch/x86/mm/kaiser.c
+index 5996f64..c4f6044 100644
+--- a/arch/x86/mm/kaiser.c
++++ b/arch/x86/mm/kaiser.c
+@@ -620,7 +620,7 @@ static const struct file_operations fops_kaiser_enabled = {
+ 
+ static int __init create_kpti_enabled(void)
+ {
+-	if (!xen_pv_domain())
++	if (!is_xen_pv_domain())
+ 		debugfs_create_file("pti_enabled", S_IRUSR | S_IWUSR,
+ 				    arch_debugfs_dir, NULL, &fops_kaiser_enabled);
+ 	return 0;
+diff --git a/drivers/base/dma-contiguous.c b/drivers/base/dma-contiguous.c
+index a7d5bda..8212518 100644
+--- a/drivers/base/dma-contiguous.c
++++ b/drivers/base/dma-contiguous.c
+@@ -310,7 +310,7 @@ struct page *dma_alloc_from_contiguous(struct device *dev, size_t count,
+ 		align = CONFIG_CMA_ALIGNMENT;
+ 
+ 	pr_debug("%s(cma %p, count %d, align %d)\n", __func__, (void *)cma,
+-		 count, align);
++		 (int)count, align);
+ 
+ 	if (!count)
+ 		return NULL;
+diff --git a/include/asm-generic/pgtable.h b/include/asm-generic/pgtable.h
+index 8aa445d..8dbed37 100644
+--- a/include/asm-generic/pgtable.h
++++ b/include/asm-generic/pgtable.h
+@@ -651,7 +651,7 @@ static inline int pud_write(pud_t pud)
+ 	return 0;
+ }
+ #endif /* __HAVE_ARCH_PUD_WRITE */
+-#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
++#else /* CONFIG_TRANSPARENT_HUGEPAGE */
+ 
+ #if !defined(CONFIG_TRANSPARENT_HUGEPAGE) || \
+ 	(defined(CONFIG_TRANSPARENT_HUGEPAGE) && \
+@@ -661,6 +661,7 @@ static inline int pud_trans_huge(pud_t pud)
+ 	return 0;
+ }
+ #endif
++#endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+ 
+ #ifndef pmd_read_atomic
+ static inline pmd_t pmd_read_atomic(pmd_t *pmdp)
+diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
+index 26ec982..45af11b 100644
+--- a/include/linux/huge_mm.h
++++ b/include/linux/huge_mm.h
+@@ -362,7 +362,7 @@ static inline int pud_trans_huge_lock(pud_t *pud, struct vm_area_struct *vma,
+ 	return 0;
+ }
+ 
+-static inline int do_huge_pmd_numa_page(struct vm_fault *vmf, pmd_t orig_pmd);
++static inline int do_huge_pmd_numa_page(struct vm_fault *vmf, pmd_t orig_pmd)
+ {
+ 	return 0;
+ }
+diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
+index 82806ff..56b42ca 100644
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -205,6 +205,7 @@ static inline void __unmap_hugepage_range(struct mmu_gather *tlb,
+ 
+ #endif /* !CONFIG_HUGETLB_PAGE */
+ 
++#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ #ifndef pud_write
+ #ifdef CONFIG_X86_64
+ static inline int pud_write(pud_t pud)
+@@ -219,6 +220,7 @@ static inline int pud_write(pud_t pud)
+ }
+ #endif
+ #endif
++#endif
+ 
+ #define HUGETLB_ANON_FILE "anon_hugepage"
+ 
+-- 
+2.7.4
+
