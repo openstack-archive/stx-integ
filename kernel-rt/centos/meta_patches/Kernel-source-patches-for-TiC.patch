@@ -1,10 +1,7 @@
-From 474dba949c833af02a3c7662ebe888858cc76bfc Mon Sep 17 00:00:00 2001
-Message-Id: <474dba949c833af02a3c7662ebe888858cc76bfc.1524511431.git.Jim.Somerville@windriver.com>
-In-Reply-To: <bad8bf002117c4df5c2d4b3131567300a4bb3861.1524511431.git.Jim.Somerville@windriver.com>
-References: <bad8bf002117c4df5c2d4b3131567300a4bb3861.1524511431.git.Jim.Somerville@windriver.com>
+From 594945768919169f4c51c27f49c58d30eaafc2a0 Mon Sep 17 00:00:00 2001
 From: Jim Somerville <Jim.Somerville@windriver.com>
 Date: Mon, 23 Apr 2018 15:19:36 -0400
-Subject: [PATCH 2/2] Kernel source patches for TiC
+Subject: [PATCH] Kernel source patches for TiC
 
 Signed-off-by: Jim Somerville <Jim.Somerville@windriver.com>
 ---
@@ -12,10 +9,10 @@ Signed-off-by: Jim Somerville <Jim.Somerville@windriver.com>
  1 file changed, 68 insertions(+)
 
 diff --git a/SPECS/kernel-rt.spec b/SPECS/kernel-rt.spec
-index 0c3f318..f985ed4 100644
+index 6a5567b..dc314c4 100644
 --- a/SPECS/kernel-rt.spec
 +++ b/SPECS/kernel-rt.spec
-@@ -392,6 +392,41 @@ Patch001: avoid-debuginfo-hash-collision-scripts.patch
+@@ -387,6 +387,41 @@ Source1000: modprobe-dccp-blacklist.conf
  
  # Empty final patch file to facilitate testing of kernel patches
  Patch999999: linux-kernel-test.patch
@@ -36,7 +33,6 @@ index 0c3f318..f985ed4 100644
 +Patch1014: Enable-building-mpt2sas-and-mpt3sas-as-builtin-for-C.patch
 +Patch1015: Enable-building-kernel-with-CONFIG_BLK_DEV_NBD.patch
 +Patch1016: x86-make-dma_alloc_coherent-return-zeroed-memory-if-.patch
-+Patch1017: arch-x86-kernel-pci-dma.c-fix-dma_generic_alloc_cohe.patch
 +Patch1018: rcu-Don-t-wake-rcuc-X-kthreads-on-NOCB-CPUs.patch
 +Patch1019: Porting-Cacheinfo-from-Kernel-4.10.17.patch
 +Patch1020: Fix-cacheinfo-compilation-issues-for-3.10.patch
@@ -54,10 +50,11 @@ index 0c3f318..f985ed4 100644
 +# DRBD was choking on write same
 +Patch1031: turn-off-write-same-in-smartqpi-driver.patch
 +Patch1032: restrict-iSCSI-kthreads-to-CPUs-in-cpu_kthread_mask.patch
++Patch1033: Fix-compile-error.patch
  
  BuildRoot: %{_tmppath}/kernel-%{KVERREL}-root
  
-@@ -754,6 +789,39 @@ cp %{SOURCE38} .
+@@ -719,6 +754,39 @@ cp %{SOURCE38} .
  
  ## Apply Patches here
  ApplyPatch linux-kernel-test.patch
@@ -78,7 +75,6 @@ index 0c3f318..f985ed4 100644
 +ApplyPatch Enable-building-mpt2sas-and-mpt3sas-as-builtin-for-C.patch
 +ApplyPatch Enable-building-kernel-with-CONFIG_BLK_DEV_NBD.patch
 +ApplyPatch x86-make-dma_alloc_coherent-return-zeroed-memory-if-.patch
-+ApplyPatch arch-x86-kernel-pci-dma.c-fix-dma_generic_alloc_cohe.patch
 +ApplyPatch rcu-Don-t-wake-rcuc-X-kthreads-on-NOCB-CPUs.patch
 +ApplyPatch Porting-Cacheinfo-from-Kernel-4.10.17.patch
 +ApplyPatch Fix-cacheinfo-compilation-issues-for-3.10.patch
@@ -94,9 +90,10 @@ index 0c3f318..f985ed4 100644
 +ApplyPatch dpt_i2o-fix-build-warning.patch
 +ApplyPatch turn-off-write-same-in-smartqpi-driver.patch
 +ApplyPatch restrict-iSCSI-kthreads-to-CPUs-in-cpu_kthread_mask.patch
++ApplyPatch Fix-compile-error.patch
  
  # move off upstream version mechanism
  if [ -e localversion-rt ]; then
 -- 
-1.8.3.1
+2.7.4
 
