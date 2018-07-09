@@ -66,6 +66,17 @@ SPDX-License-Identifier: Apache-2.0
             </configuration>
           </execution>
           <execution>
+            <id>sm-api-v1</id>
+            <goals>
+              <goal>generate-html</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includes>api-ref-smapi-v1.xml</includes>
+              <pdfFilename>bk-sm-api-v1</pdfFilename>
+            </configuration>
+          </execution>
+          <execution>
             <id>os-api-ref-dcmanager-api-v1</id>
             <goals>
               <goal>generate-html</goal>
@@ -151,6 +162,17 @@ SPDX-License-Identifier: Apache-2.0
             <configuration>
               <includes>api-ref-nfv-vim-v1.xml</includes>
               <pdfFilename>bk-api-ref-nfv-vim-v1</pdfFilename>
+            </configuration>
+          </execution>
+           <execution>
+            <id>os-api-ref-smapi-v1</id>
+            <goals>
+              <goal>generate-html</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includes>api-ref-smapi-v1.xml</includes>
+              <pdfFilename>bk-api-ref-smapi-v1</pdfFilename>
             </configuration>
           </execution>
           <!-- Configuration for OpenStack API References (pdf) -->
