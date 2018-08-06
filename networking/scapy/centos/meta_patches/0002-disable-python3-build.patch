@@ -1,0 +1,129 @@
+From 539b96fb1077b41e15d49f8b1a57d9bbefe19a47 Mon Sep 17 00:00:00 2001
+From: yhu6 <yong.hu@intel.com>
+Date: Mon, 6 Aug 2018 19:05:54 +0800
+Subject: [PATCH] disable python3 build
+
+Signed-off-by: yhu6 <yong.hu@intel.com>
+---
+ SPECS/scapy.spec | 68 ++++++++++++++++++++++++++++----------------------------
+ 1 file changed, 34 insertions(+), 34 deletions(-)
+
+diff --git a/SPECS/scapy.spec b/SPECS/scapy.spec
+index 0fe347d..9fd6240 100644
+--- a/SPECS/scapy.spec
++++ b/SPECS/scapy.spec
+@@ -21,8 +21,8 @@ BuildArch:      noarch
+ BuildRequires:  sed
+ BuildRequires:  python2 >= 2.5
+ BuildRequires:  python2-devel >= 2.5
+-BuildRequires:  python%{python3_pkgversion}
+-BuildRequires:  python%{python3_pkgversion}-devel
++# BuildRequires:  python%{python3_pkgversion}
++# BuildRequires:  python%{python3_pkgversion}-devel
+ 
+ 
+ 
+@@ -45,18 +45,18 @@ of the Python interpreter. It can be used to forge or decode packets of
+ a wide number of protocols, send them over the wire, capture them, match
+ requests and replies, and much more.
+ 
+-%package -n python%{python3_pkgversion}-%{name}
+-Summary:        Interactive packet manipulation tool and network scanner
++# %package -n python%{python3_pkgversion}-%{name}
++# Summary:        Interactive packet manipulation tool and network scanner
+ 
+-%{?python_provide:%python_provide python%{python3_pkgversion}-%{name}}
+-Provides:       %{name}
++# %{?python_provide:%python_provide python%{python3_pkgversion}-%{name}}
++# Provides:       %{name}
+ 
+ 
+-%description -n python%{python3_pkgversion}-%{name}
+-Scapy is a powerful interactive packet manipulation program built on top
+-of the Python interpreter. It can be used to forge or decode packets of
+-a wide number of protocols, send them over the wire, capture them, match
+-requests and replies, and much more.
++# %description -n python%{python3_pkgversion}-%{name}
++# Scapy is a powerful interactive packet manipulation program built on top
++# of the Python interpreter. It can be used to forge or decode packets of
++# a wide number of protocols, send them over the wire, capture them, match
++# requests and replies, and much more.
+ 
+ 
+ 
+@@ -67,7 +67,7 @@ requests and replies, and much more.
+ 
+ %build
+ %py2_build
+-%py3_build
++# %py3_build
+ 
+ 
+ 
+@@ -91,26 +91,26 @@ mv -f %{buildroot}%{_bindir}/scapy   %{buildroot}%{_bindir}/scapy2
+ mv -f %{buildroot}%{_bindir}/UTscapy %{buildroot}%{_bindir}/UTscapy2
+ 
+ 
+-%py3_install
+-rm -f %{buildroot}%{python3_sitelib}/*egg-info/requires.txt
++# %py3_install
++# rm -f %{buildroot}%{python3_sitelib}/*egg-info/requires.txt
+ 
+ # Remove shebang
+-for FILE in %{buildroot}%{python3_sitelib}/scapy/contrib/*.py \
+-            %{buildroot}%{python3_sitelib}/scapy/pipetool.py \
+-            %{buildroot}%{python3_sitelib}/scapy/layers/inet6.py \
+-            %{buildroot}%{python3_sitelib}/scapy/tools/check_asdis.py; do
+-    sed -i.orig -e 1d "${FILE}"
+-    touch -r "${FILE}.orig" "${FILE}"
+-    rm "${FILE}.orig"
+-done
++# for FILE in %{buildroot}%{python3_sitelib}/scapy/contrib/*.py \
++#             %{buildroot}%{python3_sitelib}/scapy/pipetool.py \
++#             %{buildroot}%{python3_sitelib}/scapy/layers/inet6.py \
++#             %{buildroot}%{python3_sitelib}/scapy/tools/check_asdis.py; do
++#     sed -i.orig -e 1d "${FILE}"
++#     touch -r "${FILE}.orig" "${FILE}"
++#     rm "${FILE}.orig"
++# done
+ 
+ # Rename the executables
+-mv -f %{buildroot}%{_bindir}/scapy   %{buildroot}%{_bindir}/scapy3
+-mv -f %{buildroot}%{_bindir}/UTscapy %{buildroot}%{_bindir}/UTscapy3
++# mv -f %{buildroot}%{_bindir}/scapy   %{buildroot}%{_bindir}/scapy3
++# mv -f %{buildroot}%{_bindir}/UTscapy %{buildroot}%{_bindir}/UTscapy3
+ 
+ # Link the default to the python3 version of executables
+-ln -s %{_bindir}/scapy3   %{buildroot}%{_bindir}/scapy
+-ln -s %{_bindir}/UTscapy3 %{buildroot}%{_bindir}/UTscapy
++# ln -s %{_bindir}/scapy3   %{buildroot}%{_bindir}/scapy
++# ln -s %{_bindir}/UTscapy3 %{buildroot}%{_bindir}/UTscapy
+ 
+ 
+ 
+@@ -131,14 +131,14 @@ ln -s %{_bindir}/UTscapy3 %{buildroot}%{_bindir}/UTscapy
+ 
+ 
+ 
+-%files -n python%{python3_pkgversion}-%{name}
+-%doc %{_mandir}/man1/scapy.1*
+-%{_bindir}/scapy
+-%{_bindir}/UTscapy
+-%{_bindir}/scapy3
+-%{_bindir}/UTscapy3
+-%{python3_sitelib}/scapy/*
+-%{python3_sitelib}/scapy-*.egg-info
++# %files -n python%{python3_pkgversion}-%{name}
++# %doc %{_mandir}/man1/scapy.1*
++# %{_bindir}/scapy
++# %{_bindir}/UTscapy
++# %{_bindir}/scapy3
++# %{_bindir}/UTscapy3
++# %{python3_sitelib}/scapy/*
++# %{python3_sitelib}/scapy-*.egg-info
+ 
+ 
+ 
+-- 
+2.7.4
+
