@@ -1,32 +1,36 @@
-From f57e1196deb8890c143ebd978f0b83e4c0e749f8 Mon Sep 17 00:00:00 2001
+From 523e4d320fca68c3d7587d1db2913c2a855b8efb Mon Sep 17 00:00:00 2001
 From: Scott Little <scott.little@windriver.com>
 Date: Mon, 2 Oct 2017 16:09:29 -0400
-Subject: [PATCH 3/3] WRS: meta-e2fsprogs-disable-tests.patch
+Subject: [PATCH] WRS: meta-e2fsprogs-disable-tests.patch
 
 ---
- SPECS/e2fsprogs.spec | 2 ++
- 1 file changed, 2 insertions(+)
+ SPECS/e2fsprogs.spec | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/SPECS/e2fsprogs.spec b/SPECS/e2fsprogs.spec
-index 38ff00b..0eb885a 100644
+index da8f3b7..b7ba7ef 100644
 --- a/SPECS/e2fsprogs.spec
 +++ b/SPECS/e2fsprogs.spec
-@@ -37,6 +37,7 @@ Patch24: e2fsprogs-1.42.10-Fix-nroff-macro-issue-in-chattr-man-page.patch
+@@ -38,6 +38,9 @@ Patch25: e2fsprogs-1.43.6-libext2fs-skip-start_blk-adjustment-when-stride-and-.p
+ Patch26: e2fsprogs-1.43.4-tune2fs-edit-dire-warning-about-check-intervals.patch
+ Patch27: e2fsprogs-1.42.11-Fix-32-64-bit-overflow-when-multiplying-by-blocks-cl.patch
  
- # WRS patches
- Patch100: 0100-tamper-proof-bash-log.patch
++# WRS patches
 +Patch101: 0101-e2fsprogs-disable-tests.patch
- 
++
  Url: http://e2fsprogs.sourceforge.net/
  BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-@@ -213,6 +214,7 @@ It was originally inspired by the Multics SubSystem library.
+ Requires: e2fsprogs-libs%{?_isa} = %{version}-%{release}
+@@ -214,6 +217,9 @@ It was originally inspired by the Multics SubSystem library.
+ %patch26 -p1
+ %patch27 -p1
  
- # WRS patches
- %patch100 -p1
++# WRS patches
 +%patch101 -p1
- 
++
  %build
  %configure --enable-elf-shlibs --enable-nls --disable-uuidd --disable-fsck \
+ 	   --disable-e2initrd-helper --disable-libblkid --disable-libuuid \
 -- 
-1.9.1
+2.7.4
 
