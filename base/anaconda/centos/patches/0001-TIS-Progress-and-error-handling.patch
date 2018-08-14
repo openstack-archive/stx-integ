@@ -1,4 +1,4 @@
-From fa37cfcf560506f49bb00b9d216b1e7646a6905b Mon Sep 17 00:00:00 2001
+From a1869fb8bd8ccbe12a9519fa5d018b9142160050 Mon Sep 17 00:00:00 2001
 From: Don Penney <don.penney@windriver.com>
 Date: Mon, 13 Nov 2017 17:21:05 -0500
 Subject: [PATCH] TIS Progress and error handling
@@ -89,7 +89,7 @@ index 860b228..1d1d34b 100644
          _map = {"PartitioningError": self._partitionErrorHandler,
                  "FSResizeError": self._fsResizeHandler,
 diff --git a/pyanaconda/flags.py b/pyanaconda/flags.py
-index 8a97f95..3d0d2da 100644
+index dca05cf..5b0faad 100644
 --- a/pyanaconda/flags.py
 +++ b/pyanaconda/flags.py
 @@ -70,6 +70,7 @@ class Flags(object):
@@ -101,7 +101,7 @@ index 8a97f95..3d0d2da 100644
          self.nosave_input_ks = False
          self.nosave_output_ks = False
 diff --git a/pyanaconda/install.py b/pyanaconda/install.py
-index 26e1b26..bd8f85b 100644
+index 2a54788..36314f7 100644
 --- a/pyanaconda/install.py
 +++ b/pyanaconda/install.py
 @@ -35,6 +35,9 @@ from pyanaconda.ui.lib.entropy import wait_for_entropy
@@ -123,19 +123,19 @@ index 26e1b26..bd8f85b 100644
  
  def doInstall(storage, payload, ksdata, instClass):
 diff --git a/pyanaconda/kickstart.py b/pyanaconda/kickstart.py
-index 50515c8..d95b2df 100644
+index 7b27fd7..41de0b1 100644
 --- a/pyanaconda/kickstart.py
 +++ b/pyanaconda/kickstart.py
-@@ -81,6 +81,8 @@ from pykickstart.sections import NullSection, PackageSection, PostScriptSection,
- from pykickstart.sections import Section
+@@ -88,6 +88,8 @@ from pykickstart.sections import NullSection, PackageSection, PostScriptSection,
  from pykickstart.version import returnClassForVersion, RHEL7
+ from pykickstart.options import KSOptionParser
  
 +from pyanaconda.tisnotify import tisnotify
 +
  import logging
  log = logging.getLogger("anaconda")
  stderrLog = logging.getLogger("anaconda.stderr")
-@@ -2342,6 +2344,7 @@ def runPreScripts(scripts):
+@@ -2436,6 +2438,7 @@ def runPreScripts(scripts):
      if len(preScripts) == 0:
          return
  
@@ -144,7 +144,7 @@ index 50515c8..d95b2df 100644
      stdoutLog.info(_("Running pre-installation scripts"))
  
 diff --git a/pyanaconda/packaging/rpmostreepayload.py b/pyanaconda/packaging/rpmostreepayload.py
-index 7cf59d7..8896ba1 100644
+index 42e82ce..6a2a0ce 100644
 --- a/pyanaconda/packaging/rpmostreepayload.py
 +++ b/pyanaconda/packaging/rpmostreepayload.py
 @@ -36,6 +36,8 @@ from gi.repository import Gio
@@ -164,15 +164,15 @@ index 7cf59d7..8896ba1 100644
              exn = PayloadInstallError("%s %s exited with code %d" % (cmd, argv, rc))
              if errors.errorHandler.cb(exn) == errors.ERROR_RAISE:
                  raise exn
-@@ -170,6 +173,7 @@ class RPMOSTreePayload(ArchivePayload):
-         try:
-             repo.pull(ostreesetup.remote, [ostreesetup.ref], 0, progress, cancellable)
+@@ -183,6 +186,7 @@ class RPMOSTreePayload(ArchivePayload):
+                                    GLib.Variant('a{sv}', pull_opts),
+                                    progress, cancellable)
          except GLib.GError as e:
 +            tisnotify.failed()
              exn = PayloadInstallError("Failed to pull from repository: %s" % e)
              log.error(str(exn))
              if errors.errorHandler.cb(exn) == errors.ERROR_RAISE:
-@@ -213,6 +217,7 @@ class RPMOSTreePayload(ArchivePayload):
+@@ -227,6 +231,7 @@ class RPMOSTreePayload(ArchivePayload):
          try:
              self._copyBootloaderData()
          except (OSError, RuntimeError) as e:
@@ -181,7 +181,7 @@ index 7cf59d7..8896ba1 100644
              log.error(str(exn))
              if errors.errorHandler.cb(exn) == errors.ERROR_RAISE:
 diff --git a/pyanaconda/packaging/yumpayload.py b/pyanaconda/packaging/yumpayload.py
-index c6aa234..a0497e0 100644
+index a93e3ef..97fdfd0 100644
 --- a/pyanaconda/packaging/yumpayload.py
 +++ b/pyanaconda/packaging/yumpayload.py
 @@ -46,6 +46,8 @@ from pyanaconda.simpleconfig import simple_replace
@@ -202,7 +202,7 @@ index c6aa234..a0497e0 100644
          self.reset()
  
      def reset(self, root=None, releasever=None):
-@@ -1338,6 +1342,8 @@ reposdir=%s
+@@ -1347,6 +1351,8 @@ reposdir=%s
          if self.data.packages.handleMissing == KS_MISSING_IGNORE:
              return
  
@@ -211,7 +211,7 @@ index c6aa234..a0497e0 100644
          # If we're doing non-interactive ks install, raise CmdlineError,
          # otherwise the system will just reboot automatically
          if flags.automatedInstall and not flags.ksprompt:
-@@ -1515,6 +1521,7 @@ reposdir=%s
+@@ -1524,6 +1530,7 @@ reposdir=%s
          try:
              self.checkSoftwareSelection()
          except DependencyError as e:
@@ -219,7 +219,7 @@ index c6aa234..a0497e0 100644
              if errorHandler.cb(e) == ERROR_RAISE:
                  progressQ.send_quit(1)
                  while True:
-@@ -1569,6 +1576,10 @@ reposdir=%s
+@@ -1578,6 +1585,10 @@ reposdir=%s
                      key, text = line.split(":", 1)
                      msg = progress_map[key] + text
                      progressQ.send_message(msg)
@@ -230,7 +230,7 @@ index c6aa234..a0497e0 100644
                      log.debug(msg)
                  elif line.startswith("DEBUG:"):
                      log.debug(line[6:])
-@@ -1581,7 +1592,8 @@ reposdir=%s
+@@ -1590,7 +1601,8 @@ reposdir=%s
                      install_errors.append(line[6:])
                  else:
                      log.debug(line)
@@ -240,7 +240,7 @@ index c6aa234..a0497e0 100644
              log.error("Error running anaconda-yum: %s", e)
              exn = PayloadInstallError(str(e))
              if errorHandler.cb(exn) == ERROR_RAISE:
-@@ -1603,6 +1615,7 @@ reposdir=%s
+@@ -1612,6 +1624,7 @@ reposdir=%s
                  shutil.rmtree(iutil.getSysroot()+"/var/tmp/yum.cache")
  
          if install_errors:
@@ -250,7 +250,7 @@ index c6aa234..a0497e0 100644
                  progressQ.send_quit(1)
 diff --git a/pyanaconda/tisnotify.py b/pyanaconda/tisnotify.py
 new file mode 100644
-index 0000000..bf5d9bd
+index 0000000..33fc79b
 --- /dev/null
 +++ b/pyanaconda/tisnotify.py
 @@ -0,0 +1,91 @@
@@ -390,5 +390,5 @@ index 1feeb08..8221e31 100644
  
              q.task_done()
 -- 
-1.8.3.1
+2.7.4
 
