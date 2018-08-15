@@ -1,6 +1,9 @@
-Do not pass CFLAGS to gcc while building native tool
+From 3608628ffb0df690026e652eba9580458c479495 Mon Sep 17 00:00:00 2001
+From: slin14 <shuicheng.lin@intel.com>
+Date: Thu, 16 Aug 2018 02:44:43 +0800
+Subject: [PATCH] Do not pass CFLAGS to gcc while building native tool
 
-Do not pass CFLAGS/LDFLAGS to gcc while building native tool, The 
+Do not pass CFLAGS/LDFLAGS to gcc while building native tool, The
 needed flags has been passed by xxx_CFLAGS=$(CFLAGS_FOR_BUILD).
 ---
  tools/locktest/Makefile.am | 2 ++
@@ -34,5 +37,5 @@ index 8a9ec89..8bacdaa 100644
  
  noinst_PROGRAMS = rpcgen
 -- 
-1.9.1
+2.7.4
 
