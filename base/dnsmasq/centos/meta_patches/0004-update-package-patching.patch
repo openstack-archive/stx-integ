@@ -1,0 +1,26 @@
+From c3fa62ab06c10dab4b30c905e292d1dcd9aa3719 Mon Sep 17 00:00:00 2001
+From: chenyan <yan.chen@intel.com>
+Date: Wed, 15 Aug 2018 17:10:30 +0800
+Subject: [PATCH 4/4] update package patching
+
+Signed-off-by: chenyan <yan.chen@intel.com>
+---
+ SPECS/dnsmasq.spec | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/SPECS/dnsmasq.spec b/SPECS/dnsmasq.spec
+index 5cf440a..dd74293 100644
+--- a/SPECS/dnsmasq.spec
++++ b/SPECS/dnsmasq.spec
+@@ -13,7 +13,7 @@
+ 
+ Name:           dnsmasq
+ Version:        2.76
+-Release:        5%{?extraversion}%{?dist}
++Release:        5.el7%{?_tis_dist}.%{tis_patch_ver}
+ Summary:        A lightweight DHCP/caching DNS server
+ 
+ Group:          System Environment/Daemons
+-- 
+2.7.4
+

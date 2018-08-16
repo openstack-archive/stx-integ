@@ -1,4 +1,4 @@
-spec-include-TiS-patch.patch
-dnsmasq-spec-add-init-script.patch
-patch-tftp-to-close-sockets-immediately.patch
-0001-Update-package-versioning-for-TIS-format.patch
+0001-WRS-spec-include-TiS-patch.patch.patch
+0002-WRS-dnsmasq-spec-add-init-script.patch.patch
+0003-WRS-patch-tftp-to-close-sockets-immediately.patch.patch
+0004-update-package-patching.patch
