@@ -1,81 +1,99 @@
-From 3cf42638ea162be04cbfc8b8eedbef6292336640 Mon Sep 17 00:00:00 2001
+From 4d2f08682e068203202975430275a48bf086e5a8 Mon Sep 17 00:00:00 2001
 From: Kam Nasim <kam.nasim@windriver.com>
 Date: Wed, 29 Mar 2017 21:56:41 -0400
 Subject: [PATCH] lighttpd tpm support
 
 ---
- src/base.h       |  10 ++++-
- src/configfile.c |   4 ++
- src/network.c    | 111 ++++++++++++++++++++++++++++++++++++++++++++++---------
- src/server.c     |  12 +++++-
- 4 files changed, 118 insertions(+), 19 deletions(-)
+ src/base.h        |  24 ++++++++++++
+ src/configfile.c  |   6 ++-
+ src/mod_openssl.c | 113 +++++++++++++++++++++++++++++++++++++++++++++---------
+ src/server.c      |  13 +++++++
+ 4 files changed, 136 insertions(+), 20 deletions(-)
 
 diff --git a/src/base.h b/src/base.h
-index 134fc41..5fab1fd 100644
+index 2fe60b6..bddcd01 100644
 --- a/src/base.h
 +++ b/src/base.h
-@@ -37,6 +37,7 @@
- #   endif
- #  endif
- # include <openssl/ssl.h>
+@@ -15,6 +15,21 @@
+ #include "sock_addr.h"
+ #include "etag.h"
+ 
++#if defined HAVE_LIBSSL && defined HAVE_OPENSSL_SSL_H
++# define USE_OPENSSL
++# include <openssl/opensslconf.h>
++#  ifndef USE_OPENSSL_KERBEROS
++#   ifndef OPENSSL_NO_KRB5
++#   define OPENSSL_NO_KRB5
++#   endif
++#  endif
++# include <openssl/ssl.h>
 +# include <openssl/engine.h>
- # if ! defined OPENSSL_NO_TLSEXT && ! defined SSL_CTRL_SET_TLSEXT_HOSTNAME
- #  define OPENSSL_NO_TLSEXT
- # endif
-@@ -567,6 +568,13 @@ typedef struct {
++# if ! defined OPENSSL_NO_TLSEXT && ! defined SSL_CTRL_SET_TLSEXT_HOSTNAME
++#  define OPENSSL_NO_TLSEXT
++# endif
++#endif
++
+ struct fdevents;        /* declaration */
+ struct stat_cache;      /* declaration */
+ 
+@@ -360,6 +375,13 @@ typedef struct {
  	unsigned short high_precision_timestamps;
  	time_t loadts;
  	double loadavg[3];
 +#ifdef USE_OPENSSL
 +       // TPM engine and object configuration
-+       buffer *tpm_object;
-+       buffer *tpm_engine;
-+       ENGINE *tpm_engine_ref;
-+       EVP_PKEY *tpm_key;
++        buffer *tpm_object;
++        buffer *tpm_engine;
++        ENGINE *tpm_engine_ref;
++        EVP_PKEY *tpm_key;
 +#endif
+ 	buffer *syslog_facility;
  } server_config;
  
- typedef struct server_socket {
-@@ -610,7 +618,7 @@ typedef struct server {
+@@ -400,6 +422,8 @@ struct server {
+ 	int con_written;
  	int con_closed;
  
- 	int ssl_is_init;
--
-+       int tpm_is_init;  // has TPM been initialized already
++        int tpm_is_init;  // has TPM been initialized already
++
  	int max_fds;    /* max possible fds */
  	int cur_fds;    /* currently used fds */
  	int want_fds;   /* waiting fds */
 diff --git a/src/configfile.c b/src/configfile.c
-index bba6925..da818ed 100644
+index c3b0f16..dca2a29 100644
 --- a/src/configfile.c
 +++ b/src/configfile.c
-@@ -145,6 +145,8 @@ static int config_insert(server *srv) {
- 		{ "server.stream-response-body",       NULL, T_CONFIG_SHORT,   T_CONFIG_SCOPE_CONNECTION }, /* 77 */
- 		{ "server.max-request-field-size",     NULL, T_CONFIG_INT,     T_CONFIG_SCOPE_SERVER     }, /* 78 */
- 		{ "ssl.read-ahead",                    NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 79 */
-+		{ "server.tpm-object",                 NULL, T_CONFIG_STRING,  T_CONFIG_SCOPE_SERVER     }, /* 80 */
-+		{ "server.tpm-engine",                 NULL, T_CONFIG_STRING,  T_CONFIG_SCOPE_SERVER     }, /* 81 */
+@@ -276,8 +276,10 @@ static int config_insert(server *srv) {
+ 		{ "server.syslog-facility",            NULL, T_CONFIG_STRING,  T_CONFIG_SCOPE_SERVER     }, /* 80 */
+ 		{ "server.socket-perms",               NULL, T_CONFIG_STRING,  T_CONFIG_SCOPE_CONNECTION }, /* 81 */
+ 		{ "server.http-parseopts",             NULL, T_CONFIG_ARRAY,   T_CONFIG_SCOPE_SERVER     }, /* 82 */
++                { "server.tpm-object",                 NULL, T_CONFIG_STRING,  T_CONFIG_SCOPE_SERVER     }, /* 83 */
++                { "server.tpm-engine",                 NULL, T_CONFIG_STRING,  T_CONFIG_SCOPE_SERVER     }, /* 84 */
  
- 		{ NULL,                                NULL, T_CONFIG_UNSET,   T_CONFIG_SCOPE_UNSET      }
+-		{ NULL,                                NULL, T_CONFIG_UNSET,   T_CONFIG_SCOPE_UNSET      }
++                { NULL,                                NULL, T_CONFIG_UNSET,   T_CONFIG_SCOPE_UNSET      }
  	};
-@@ -184,6 +186,8 @@ static int config_insert(server *srv) {
- 	cv[73].destination = &(srv->srvconf.http_host_strict);
- 	cv[74].destination = &(srv->srvconf.http_host_normalize);
- 	cv[78].destination = &(srv->srvconf.max_request_field_size);
-+	cv[80].destination = srv->srvconf.tpm_object;
-+	cv[81].destination = srv->srvconf.tpm_engine;
+ 
+ 	/* all T_CONFIG_SCOPE_SERVER options */
+@@ -318,6 +320,8 @@ static int config_insert(server *srv) {
+ 	cv[80].destination = srv->srvconf.syslog_facility;
+ 	http_parseopts = array_init();
+ 	cv[82].destination = http_parseopts;
++        cv[83].destination = srv->srvconf.tpm_object;
++        cv[84].destination = srv->srvconf.tpm_engine;
  
  	srv->config_storage = calloc(1, srv->config_context->used * sizeof(specific_config *));
  
-diff --git a/src/network.c b/src/network.c
-index 4295fe9..6460e72 100644
---- a/src/network.c
-+++ b/src/network.c
-@@ -613,6 +613,29 @@ error:
- 	return NULL;
+diff --git a/src/mod_openssl.c b/src/mod_openssl.c
+index 75e0873..4cb0335 100644
+--- a/src/mod_openssl.c
++++ b/src/mod_openssl.c
+@@ -422,6 +422,29 @@ error:
+     return NULL;
  }
  
-+static EVP_PKEY* evp_pkey_load_tpm_object_file(server *srv) {
++static EVP_PKEY* 
++evp_pkey_load_tpm_object_file(server *srv) {
 +    if (!srv->tpm_is_init || !srv->srvconf.tpm_engine_ref)
 +        return NULL;
 +
@@ -95,31 +113,31 @@ index 4295fe9..6460e72 100644
 +        return NULL;
 +    }
 +    srv->srvconf.tpm_key = pkey;
-+    return pkey;    
++    return pkey;
 +}
-+
- static EVP_PKEY* evp_pkey_load_pem_file(server *srv, const char *file) {
- 	BIO *in;
- 	EVP_PKEY *x = NULL;
-@@ -658,15 +681,23 @@ static int network_openssl_load_pemfile(server *srv, size_t ndx) {
- #endif
  
- 	if (NULL == (s->ssl_pemfile_x509 = x509_load_pem_file(srv, s->ssl_pemfile->ptr))) return -1;
--	if (NULL == (s->ssl_pemfile_pkey = evp_pkey_load_pem_file(srv, s->ssl_pemfile->ptr))) return -1;
+ static EVP_PKEY *
+ evp_pkey_load_pem_file (server *srv, const char *file)
+@@ -476,15 +499,23 @@ network_openssl_load_pemfile (server *srv, plugin_config *s, size_t ndx)
  
--	if (!X509_check_private_key(s->ssl_pemfile_x509, s->ssl_pemfile_pkey)) {
--		log_error_write(srv, __FILE__, __LINE__, "sssb", "SSL:",
--				"Private key does not match the certificate public key, reason:",
--				ERR_error_string(ERR_get_error(), NULL),
--				s->ssl_pemfile);
--		return -1;
--	}
+     s->ssl_pemfile_x509 = x509_load_pem_file(srv, s->ssl_pemfile->ptr);
+     if (NULL == s->ssl_pemfile_x509) return -1;
+-    s->ssl_pemfile_pkey = evp_pkey_load_pem_file(srv, s->ssl_pemfile->ptr);
+-    if (NULL == s->ssl_pemfile_pkey) return -1;
+-
+-    if (!X509_check_private_key(s->ssl_pemfile_x509, s->ssl_pemfile_pkey)) {
+-        log_error_write(srv, __FILE__, __LINE__, "sssb", "SSL:",
+-                        "Private key does not match the certificate public key,"
+-                        " reason:", ERR_error_string(ERR_get_error(), NULL),
+-                        s->ssl_pemfile);
+-        return -1;
++    
 +    // if TPM mode is enabled then load the TPM key otherwise load
 +    // the regular SSL private key
 +    if (srv->tpm_is_init) {
 +        if (NULL == (s->ssl_pemfile_pkey = evp_pkey_load_tpm_object_file(srv))) return -1;
 +    }
-+    else {  
++    else {
 +        if (NULL == (s->ssl_pemfile_pkey = evp_pkey_load_pem_file(srv, s->ssl_pemfile->ptr))) return -1;
 +
 +        if (!X509_check_private_key(s->ssl_pemfile_x509, s->ssl_pemfile_pkey)) {
@@ -129,13 +147,13 @@ index 4295fe9..6460e72 100644
 +                    s->ssl_pemfile);
 +            return -1;
 +        }
-+    }
++
+     }
  
- 	return 0;
- }
-@@ -791,6 +822,44 @@ int network_init(server *srv) {
- 			}
- 		}
+     return 0;
+@@ -651,6 +682,43 @@ network_init_ssl (server *srv, void *p_d)
+             force_assert(NULL != local_send_buffer);
+         }
  
 +        /* NOTE (knasim-wrs): US93721: TPM support
 +         * if TPM mode is configured, and we have not previously
@@ -144,7 +162,7 @@ index 4295fe9..6460e72 100644
 +        if (!buffer_string_is_empty(srv->srvconf.tpm_object) &&
 +            (!srv->tpm_is_init)) {
 +            if (!buffer_string_is_empty(srv->srvconf.tpm_engine)) {
-+                // load the dynamic TPM engine 
++                // load the dynamic TPM engine
 +                ENGINE_load_dynamic();
 +                ENGINE *engine = ENGINE_by_id("dynamic");
 +                if (!engine) {
@@ -154,102 +172,107 @@ index 4295fe9..6460e72 100644
 +                    return -1;
 +                }
 +
-+                ENGINE_ctrl_cmd_string(engine, "SO_PATH", 
++                ENGINE_ctrl_cmd_string(engine, "SO_PATH",
 +                                       srv->srvconf.tpm_engine->ptr, 0);
 +                ENGINE_ctrl_cmd_string(engine, "LOAD", NULL, 0);
 +                if (ENGINE_init(engine) != 1) {
 +                    log_error_write(srv, __FILE__, __LINE__, "ssb", "SSL:",
-+						ERR_error_string(ERR_get_error(), NULL));
++                                               ERR_error_string(ERR_get_error(), NULL));
 +                    ENGINE_finish(engine);
 +                    return -1;
 +                }
 +                srv->tpm_is_init = 1;
 +                // stow away for ENGINE cleanup
 +                srv->srvconf.tpm_engine_ref = engine;
-+            } 
++            }
 +            else { // no TPM engine found
 +                log_error_write(srv, __FILE__, __LINE__, "ss", "SSL:",
 +                        "TPM engine option not set when TPM mode expected");
 +                return -1;
-+            }            
++            }
 +        }
-+        ///
 +
- 		if (!buffer_string_is_empty(s->ssl_pemfile)) {
- #ifdef OPENSSL_NO_TLSEXT
- 			data_config *dc = (data_config *)srv->config_context->data[i];
-@@ -975,24 +1044,32 @@ int network_init(server *srv) {
- 			SSL_CTX_set_verify_depth(s->ssl_ctx, s->ssl_verifyclient_depth);
- 		}
+         if (!buffer_string_is_empty(s->ssl_pemfile)) {
+           #ifdef OPENSSL_NO_TLSEXT
+             data_config *dc = (data_config *)srv->config_context->data[i];
+@@ -911,29 +979,36 @@ network_init_ssl (server *srv, void *p_d)
+             }
+         }
  
--		if (1 != SSL_CTX_use_certificate(s->ssl_ctx, s->ssl_pemfile_x509)) {
-+		if (1 != SSL_CTX_use_PrivateKey(s->ssl_ctx, s->ssl_pemfile_pkey)) {
- 			log_error_write(srv, __FILE__, __LINE__, "ssb", "SSL:",
- 					ERR_error_string(ERR_get_error(), NULL), s->ssl_pemfile);
- 			return -1;
- 		}
+-        if (1 != SSL_CTX_use_certificate_chain_file(s->ssl_ctx,
+-                                                    s->ssl_pemfile->ptr)) {
++        if (1 != SSL_CTX_use_PrivateKey(s->ssl_ctx, s->ssl_pemfile_pkey)) {
+             log_error_write(srv, __FILE__, __LINE__, "ssb", "SSL:",
+                             ERR_error_string(ERR_get_error(), NULL),
+                             s->ssl_pemfile);
+             return -1;
+         }
  
--		if (1 != SSL_CTX_use_PrivateKey(s->ssl_ctx, s->ssl_pemfile_pkey)) {
-+		if (1 != SSL_CTX_use_certificate(s->ssl_ctx, s->ssl_pemfile_x509)) {
- 			log_error_write(srv, __FILE__, __LINE__, "ssb", "SSL:",
- 					ERR_error_string(ERR_get_error(), NULL), s->ssl_pemfile);
- 			return -1;
- 		}
--
--		if (SSL_CTX_check_private_key(s->ssl_ctx) != 1) {
--			log_error_write(srv, __FILE__, __LINE__, "sssb", "SSL:",
--					"Private key does not match the certificate public key, reason:",
--					ERR_error_string(ERR_get_error(), NULL),
--					s->ssl_pemfile);
--			return -1;
-+		
-+		/*
-+		 * Only check private key against loaded
-+		 * certificate, in non TPM mode, since
-+		 * if this is a TPM key then it is wrapped
-+		 * and will not match the public key
-+		 */
-+		if (!srv->tpm_is_init) {
-+			if (SSL_CTX_check_private_key(s->ssl_ctx) != 1) {
-+				log_error_write(srv, __FILE__, __LINE__, "sssb", "SSL:",
-+						"Private key does not match the certificate public key, reason:",
-+						ERR_error_string(ERR_get_error(), NULL),
-+						s->ssl_pemfile);
-+				return -1;
-+			}
- 		}
- 		SSL_CTX_set_default_read_ahead(s->ssl_ctx, s->ssl_read_ahead);
- 		SSL_CTX_set_mode(s->ssl_ctx,  SSL_CTX_get_mode(s->ssl_ctx)
+-        if (1 != SSL_CTX_use_PrivateKey(s->ssl_ctx, s->ssl_pemfile_pkey)) {
++        if (1 != SSL_CTX_use_certificate(s->ssl_ctx, s->ssl_pemfile_x509)) {
+             log_error_write(srv, __FILE__, __LINE__, "ssb", "SSL:",
+                             ERR_error_string(ERR_get_error(), NULL),
+                             s->ssl_pemfile);
+             return -1;
+         }
+ 
+-        if (SSL_CTX_check_private_key(s->ssl_ctx) != 1) {
+-            log_error_write(srv, __FILE__, __LINE__, "sssb", "SSL:",
+-                            "Private key does not match the certificate public "
+-                            "key, reason:",
+-                            ERR_error_string(ERR_get_error(), NULL),
+-                            s->ssl_pemfile);
+-            return -1;
++        /*
++                * Only check private key against loaded
++                * certificate, in non TPM mode, since
++                * if this is a TPM key then it is wrapped
++                * and will not match the public key
++                */
++        if (!srv->tpm_is_init) {
++               if (SSL_CTX_check_private_key(s->ssl_ctx) != 1) {
++                       log_error_write(srv, __FILE__, __LINE__, "sssb", "SSL:",
++                                      "Private key does not match the certificate public key, reason:",
++                                       ERR_error_string(ERR_get_error(), NULL),
++                                       s->ssl_pemfile);
++                   return -1;
++               }
+         }
++
+         SSL_CTX_set_default_read_ahead(s->ssl_ctx, s->ssl_read_ahead);
+         SSL_CTX_set_mode(s->ssl_ctx, SSL_CTX_get_mode(s->ssl_ctx)
+                                    | SSL_MODE_ENABLE_PARTIAL_WRITE
 diff --git a/src/server.c b/src/server.c
-index f27b003..5adfa15 100644
+index f6409bb..0baa985 100644
 --- a/src/server.c
 +++ b/src/server.c
-@@ -226,7 +226,10 @@ static server *server_init(void) {
- 	CLEAN(srvconf.bindhost);
- 	CLEAN(srvconf.event_handler);
+@@ -246,6 +246,11 @@ static server *server_init(void) {
  	CLEAN(srvconf.pid_file);
--
+ 	CLEAN(srvconf.syslog_facility);
+ 
 +#ifdef USE_OPENSSL
-+       CLEAN(srvconf.tpm_object);
-+       CLEAN(srvconf.tpm_engine);
++        CLEAN(srvconf.tpm_object);
++        CLEAN(srvconf.tpm_engine);
 +#endif
++
  	CLEAN(tmp_chunk_len);
  #undef CLEAN
  
-@@ -316,6 +319,13 @@ static void server_free(server *srv) {
- 	CLEAN(srvconf.modules_dir);
- 	CLEAN(srvconf.network_backend);
+@@ -347,6 +352,14 @@ static void server_free(server *srv) {
  	CLEAN(srvconf.xattr_name);
-+#ifdef USE_OPENSSL
-+       CLEAN(srvconf.tpm_object);
-+       CLEAN(srvconf.tpm_engine);
-+       // don't free the tpm_key as that will be freed
-+       // below as ssl_pemfile_pkey
-+       ENGINE_finish(srv->srvconf.tpm_engine_ref);
-+#endif
+ 	CLEAN(srvconf.syslog_facility);
  
++#ifdef USE_OPENSSL
++        CLEAN(srvconf.tpm_object);
++        CLEAN(srvconf.tpm_engine);
++        // don't free the tpm_key as that will be freed
++        // below as ssl_pemfile_pkey
++        ENGINE_finish(srv->srvconf.tpm_engine_ref);
++#endif
++
  	CLEAN(tmp_chunk_len);
  #undef CLEAN
+ 
 -- 
-1.8.3.1
+2.7.4
 
