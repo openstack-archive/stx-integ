@@ -1,4 +1,4 @@
-From 2ae1604b483c4aeb97c96cba2b6fd2d7c7bb0fce Mon Sep 17 00:00:00 2001
+From 6223c351c5dcc935da61a30a34e2f31176543a84 Mon Sep 17 00:00:00 2001
 From: Scott Little <scott.little@windriver.com>
 Date: Tue, 24 Jan 2017 12:31:27 -0500
 Subject: [PATCH 2/2] WRS: 0001-Update-package-versioning-for-TIS-format.patch
@@ -10,18 +10,18 @@ Conflicts:
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/SPECS/python-eventlet.spec b/SPECS/python-eventlet.spec
-index d85d6c1..151fa56 100644
+index 5e27ea7..dc183d0 100644
 --- a/SPECS/python-eventlet.spec
 +++ b/SPECS/python-eventlet.spec
 @@ -12,7 +12,7 @@
  
  Name:           python-%{pypi_name}
- Version:        0.18.4
+ Version:        0.20.1
 -Release:        2%{?dist}
 +Release:        2.el7%{?_tis_dist}.%{tis_patch_ver}
  Summary:        Highly concurrent networking library
  License:        MIT
  URL:            http://eventlet.net
 -- 
-1.8.3.1
+2.7.4
 
