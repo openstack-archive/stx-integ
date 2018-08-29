@@ -78,7 +78,7 @@ def is_partitioning_correct(disk_path, partition_sizes):
     output, _, _ = command(["udevadm", "settle", "-E", disk_node])
     output, _, _ = command(["parted", "-s", disk_node, "print"])
     if not re.search('Partition Table: gpt', output):
-        print "Format of disk node %s is not GPT, zapping disk" % disk_node
+        print ("Format of disk node %s is not GPT, zapping disk" % disk_node)
         return False
 
     # Check each partition size
@@ -189,10 +189,10 @@ def mount_data_partition(data_path, osdid):
         _, _, ret = command(cmd)
         params = {"node": data_node, "path": mount_path}
         if ret:
-            print "Failed to mount %(node)s to %(path), aborting" % params
+            print ("Failed to mount %(node)s to %(path), aborting" % params)
             exit(1)
         else:
-            print "Mounted %(node)s to %(path)s" % params
+            print ("Mounted %(node)s to %(path)s" % params)
     return mount_path
 
 
@@ -224,9 +224,9 @@ def fix_location(mount_point, journal_path, osdid):
         if os.path.lexists(path):
             os.unlink(path)  # delete the old symlink
         os.symlink(new_target, path)
-        print "Symlink created: %(path)s -> %(target)s" % params
+        print ("Symlink created: %(path)s -> %(target)s" % params)
     except:
-        print "Failed to create symlink: %(path)s -> %(target)s" % params
+        print ("Failed to create symlink: %(path)s -> %(target)s" % params)
         exit(1)
     # Fix journal_uuid
     path = mount_point + "/journal_uuid"
@@ -237,7 +237,7 @@ def fix_location(mount_point, journal_path, osdid):
         # The operation is noncritical, it only makes 'ceph-disk list'
         # display complete output. We log and continue.
         params = {"path": path, "uuid": journal_uuid}
-        print "WARNING: Failed to set uuid of %(path)s to %(uuid)s" % params
+        print ("WARNING: Failed to set uuid of %(path)s to %(uuid)s" % params)
 
     # Clean the journal partition
     # even if erasing the partition table, if another journal was present here
@@ -293,7 +293,7 @@ def main(argv):
     else:
         err = True
     if err:
-        print "Command intended for internal use only"
+        print ("Command intended for internal use only")
         exit(-1)
 
     if partitions:
