@@ -83,7 +83,7 @@ function database_dump()
     do
         if [ "$DB" != "keystone" -a "$DB" != "ceilometer" ] ; then
             echo "${hostname}: Dumping Database ..: ${DB_DIR}/$DB.$DB_EXT"
-            (cd ${DB_DIR} ; sudo -u postgres pg_dump $DB > $DB.$DB_EXT) 
+            (cd ${DB_DIR} ; sudo -u postgres pg_dump $DB > $DB.$DB_EXT)
         fi
     done
 }
