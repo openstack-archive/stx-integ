@@ -6,7 +6,7 @@
 #
 NODE=$1
 
-if [ `ls vswitch*.csv 2>/dev/null | wc -l` -gt 0 ]; then
+if [[ `ls vswitch*.csv 2>/dev/null | wc -l` -gt 0 ]]; then
     rm vswitch*.csv
 fi
 
