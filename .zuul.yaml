@@ -5,7 +5,10 @@
         - openstack-tox-pep8:
             voting: false
         - openstack-tox-linters:
-            voting: false
+            voting: true
     gate:
       jobs:
-        - noop
+        - openstack-tox-pep8:
+            voting: false
+        - openstack-tox-linters:
+            voting: true
