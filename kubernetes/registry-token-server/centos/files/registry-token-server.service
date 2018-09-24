@@ -1,0 +1,10 @@
+[Unit]
+Description=v2 Registry token server for Docker
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/registry-token-server
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
