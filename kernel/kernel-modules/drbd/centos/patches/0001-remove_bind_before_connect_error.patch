@@ -1,8 +1,18 @@
-Index: drbd-8.4.7-1/drbd/drbd_receiver.c
-===================================================================
---- drbd-8.4.7-1.orig/drbd/drbd_receiver.c
-+++ drbd-8.4.7-1/drbd/drbd_receiver.c
-@@ -718,6 +718,7 @@ out:
+From bcf00c9913abf28a0db4d442581c0962bcdcc526 Mon Sep 17 00:00:00 2001
+From: slin14 <shuicheng.lin@intel.com>
+Date: Tue, 25 Sep 2018 23:23:50 +0800
+Subject: [PATCH] remove_bind_before_connect_error
+
+Signed-off-by: slin14 <shuicheng.lin@intel.com>
+---
+ drbd/drbd_receiver.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drbd/drbd_receiver.c b/drbd/drbd_receiver.c
+index 8b4e639..b69e9a7 100644
+--- a/drbd/drbd_receiver.c
++++ b/drbd/drbd_receiver.c
+@@ -719,6 +719,7 @@ out:
  			/* peer not (yet) available, network problem */
  		case ECONNREFUSED: case ENETUNREACH:
  		case EHOSTDOWN:    case EHOSTUNREACH:
@@ -10,3 +20,6 @@ Index: drbd-8.4.7-1/drbd/drbd_receiver.c
  			disconnect_on_error = 0;
  			break;
  		default:
+-- 
+2.7.4
+
