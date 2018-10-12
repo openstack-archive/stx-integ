@@ -1,0 +1,53 @@
+From 8585e6e6245a7e42e1ef767ea34d0bb08ca56e47 Mon Sep 17 00:00:00 2001
+From: Jan Chaloupka <jchaloup@redhat.com>
+Date: Mon, 17 Jul 2017 14:22:29 +0200
+Subject: [PATCH] fix support for ppc64le
+
+---
+ src/k8s.io/kubernetes/build/root/Makefile | 2 +-
+ src/k8s.io/kubernetes/hack/lib/init.sh    | 2 +-
+ src/k8s.io/kubernetes/hack/lib/util.sh    | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/k8s.io/kubernetes/build/root/Makefile b/src/k8s.io/kubernetes/build/root/Makefile
+index ea5eec8..5a88385 100644
+--- a/src/k8s.io/kubernetes/build/root/Makefile
++++ b/src/k8s.io/kubernetes/build/root/Makefile
+@@ -39,7 +39,7 @@ MAKEFLAGS += --no-builtin-rules
+ # Constants used throughout.
+ .EXPORT_ALL_VARIABLES:
+ OUT_DIR ?= _output
+-BIN_DIR := $(OUT_DIR)/bin
++BIN_DIR := $(OUT_DIR)/local/go/bin
+ PRJ_SRC_PATH := k8s.io/kubernetes
+ GENERATED_FILE_PREFIX := zz_generated.
+ 
+diff --git a/src/k8s.io/kubernetes/hack/lib/init.sh b/src/k8s.io/kubernetes/hack/lib/init.sh
+index 02aba9e..a53f326 100755
+--- a/src/k8s.io/kubernetes/hack/lib/init.sh
++++ b/src/k8s.io/kubernetes/hack/lib/init.sh
+@@ -45,7 +45,7 @@ source "${KUBE_ROOT}/hack/lib/version.sh"
+ source "${KUBE_ROOT}/hack/lib/golang.sh"
+ source "${KUBE_ROOT}/hack/lib/etcd.sh"
+ 
+-KUBE_OUTPUT_HOSTBIN="${KUBE_OUTPUT_BINPATH}/$(kube::util::host_platform)"
++KUBE_OUTPUT_HOSTBIN="${KUBE_OUTPUT_BINPATH}/usr/bin"
+ 
+ # list of all available group versions.  This should be used when generated code
+ # or when starting an API server that you want to have everything.
+diff --git a/src/k8s.io/kubernetes/hack/lib/util.sh b/src/k8s.io/kubernetes/hack/lib/util.sh
+index 50f6b55..c8a8b5e 100755
+--- a/src/k8s.io/kubernetes/hack/lib/util.sh
++++ b/src/k8s.io/kubernetes/hack/lib/util.sh
+@@ -168,7 +168,7 @@ kube::util::find-binary-for-platform() {
+   local -r lookfor="$1"
+   local -r platform="$2"
+   local locations=(
+-    "${KUBE_ROOT}/_output/bin/${lookfor}"
++    "${KUBE_ROOT}/_output/local/go/bin/${lookfor}"
+     "${KUBE_ROOT}/_output/dockerized/bin/${platform}/${lookfor}"
+     "${KUBE_ROOT}/_output/local/bin/${platform}/${lookfor}"
+     "${KUBE_ROOT}/platforms/${platform}/${lookfor}"
+-- 
+2.7.5
+
