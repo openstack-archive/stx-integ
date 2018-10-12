@@ -1,0 +1,59 @@
+26,27c26
+< %global commit                  fc32d2f3698e36b93322a3465f63a14e9f0eaead
+< %global shortcommit              %(c=%{commit}; echo ${c:0:7})
+---
+> %global commit                  1.12.1
+32c31
+< %global con_repo                contrib
+---
+> %global con_repo                kubernetes-contrib
+34,36c33
+< %global con_provider_prefix     %{con_provider}.%{con_provider_tld}/%{con_project}/%{con_repo}
+< %global con_commit              5b445f1c53aa8d6457523526340077935f62e691
+< %global con_shortcommit         %(c=%{con_commit}; echo ${c:0:7})
+---
+> %global con_commit              1.12.1
+38c35
+< %global kube_version            1.10.0
+---
+> %global kube_version            1.12.1
+48c45
+< Release:        1%{?dist}
+---
+> Release:        0%{?_tis_dist}.%{tis_patch_ver}
+53,54c50,51
+< Source0:        https://%{provider_prefix}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
+< Source1:        https://%{con_provider_prefix}/archive/%{con_commit}/%{con_repo}-%{con_shortcommit}.tar.gz
+---
+> Source0:        %{project}-v%{kube_version}.tar.gz
+> Source1:        %{con_repo}-v%{con_commit}.tar.gz
+67c64
+< Patch20:        use_go_build-is-not-fully-propagated-so-make-it-fixe.patch
+---
+> #Patch20:        use_go_build-is-not-fully-propagated-so-make-it-fixe.patch
+810c807
+< Suggests: docker
+---
+> Suggests: docker-ce
+812c809
+< Requires: docker
+---
+> Requires: docker-ce
+816c813
+< BuildRequires: golang >= 1.2-7
+---
+> BuildRequires: golang >=  1.10.2
+862c859
+< %patch20 -p1
+---
+> #%patch20 -p1
+893a891
+> export PBR_VERSION=%{version}
+904c902
+< make WHAT="--use_go_build cmd/hyperkube cmd/kube-apiserver cmd/kubeadm"
+---
+> make WHAT="cmd/hyperkube cmd/kube-apiserver cmd/kubeadm"
+917a916
+> export PBR_VERSION=%{version}
+1072a1072
+> %config(noreplace) %{_sysconfdir}/%{name}/kubelet.kubeconfig
