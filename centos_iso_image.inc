@@ -180,6 +180,7 @@ centos-release
 
 # nfs-utils
 nfs-utils
+nfs-utils-config
 
 # dhcp
 dhcp
