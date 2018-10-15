@@ -60,6 +60,14 @@ install -m 644 -p -D %{_buildsubdir}/scripts/opt-platform.mount %{buildroot}/etc
 install -m 644 -p -D %{_buildsubdir}/scripts/opt-platform.service %{buildroot}/etc/systemd/system
 install -m 644 -p -D %{_buildsubdir}/scripts/memcached.service %{buildroot}/etc/systemd/system
 
+# add config files to /tmp. These config files will be moved to specifc system folder by kickstart post-installation script
+install -d %{buildroot}/tmp
+install -m 755 -p -D %{_buildsubdir}/scripts/nfs-utils/nfscommon %{buildroot}/tmp
+install -m 644 -p -D %{_buildsubdir}/scripts/nfs-utils/nfscommon.service %{buildroot}/tmp
+install -m 755 -p -D %{_buildsubdir}/scripts/nfs-utils/nfsserver %{buildroot}/tmp
+install -m 644 -p -D %{_buildsubdir}/scripts/nfs-utils/nfsserver.service %{buildroot}/tmp
+
+
 # Mask the systemd ctrl-alt-delete.target, to disable reboot on ctrl-alt-del
 ln -sf /dev/null %{buildroot}/etc/systemd/system/ctrl-alt-del.target
 
@@ -85,6 +93,11 @@ systemctl enable opt-platform.service
 %{pythonroot}/platform_util/*
 %dir %{pythonroot}/platform_util-%{version}.0-py2.7.egg-info
 %{pythonroot}/platform_util-%{version}.0-py2.7.egg-info/*
+# add config files to /tmp. These config files will be moved to specifc system folder by kickstart post-installation script
+/tmp/nfscommon
+/tmp/nfsserver
+/tmp/nfscommon.service
+/tmp/nfsserver.service
 
 %files -n platform-util-noncontroller
 %defattr(-,root,root,-)
