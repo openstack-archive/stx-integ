@@ -1,0 +1,98 @@
+From b96980cb93ec7a43d0c0db74fb24142c43db8b5a Mon Sep 17 00:00:00 2001
+From: slin14 <shuicheng.lin@intel.com>
+Date: Tue, 16 Oct 2018 18:44:35 +0800
+Subject: change default shell from lshell to bash
+
+lshell is removed from system, so switch to use bash.
+
+Signed-off-by: slin14 <shuicheng.lin@intel.com>
+---
+ sbin/ldapusersetup | 35 ++++++++++++++++++-----------------
+ 1 file changed, 18 insertions(+), 17 deletions(-)
+
+diff --git a/sbin/ldapusersetup b/sbin/ldapusersetup
+index 9b77e3b..27d12dc 100644
+--- a/sbin/ldapusersetup
++++ b/sbin/ldapusersetup
+@@ -24,7 +24,7 @@ then
+   echo "Usage : $0 [-u <username | uid> <field> <value>]
+ where accepted field(s) are as follows:
+ --sudo                        : whether to add this user to sudoer list
+---shell <\"bash\"|\"lshell\"> : choose the shell for this user (default is lshell)
++--shell <\"bash\"|\"lshell\"> : choose the shell for this user (default is bash)
+ --secondgroup <grp>           : the secondary group to add this user to
+ --passmax     <value>         : the shadowMax value for this user
+ --passwarning <value>         : the shadowWarning value for this user"
+@@ -38,6 +38,7 @@ _RUNTIMEFILE="/usr/lib/ldapscripts/runtime"
+ # runtime defaults
+ _DEFAULTGRP2="wrs_protected"
+ _DEFAULTLSHELL="/usr/local/bin/cgcs_cli"
++_BASHSHELL="/bin/sh"
+ _DEFAULTSHADOWMAX="90"
+ _DEFAULTSHADOWWARNING="2"
+ _SHELL=""
+@@ -97,20 +98,20 @@ LdapAddLoginShell () {
+     options=( 1, 2 )
+     opn=`LdapUserInput "$shellInput" options[@]`
+     case $opn in
+-      1) _SHELL="/bin/sh";;
++      1) _SHELL="$_BASHSHELL";;
+       2) _SHELL="$_DEFAULTLSHELL";;
+       *)
+-	 [ ! -z "$opn" ] && echo "Invalid option. Selecting Lshell"
+-         _SHELL="$_DEFAULTLSHELL"
++	 [ ! -z "$opn" ] && echo "Invalid option. Selecting Bash"
++         _SHELL="$_BASHSHELL"
+ 	 ;;
+     esac
+   else
+     shellopn=${2,,}
+     case $shellopn in
+-      "bash") _SHELL="/bin/sh";;
++      "bash") _SHELL="$_BASHSHELL";;
+       "lshell") _SHELL="$_DEFAULTLSHELL";;
+       *)
+-         echo "Invalid option($2). Selecting Lshell"; _SHELL="$_DEFAULTLSHELL"
++         echo "Invalid option($2). Selecting Bash"; _SHELL="$_BASHSHELL"
+ 	 ;;
+     esac
+   fi
+@@ -170,7 +171,7 @@ LdapUpdateShadowWarning () {
+ # loose coupling by not relying on helpers but
+ # at the expense of massively redundant code
+ # duplication.
+-declare -a helper_scripts=("ldapadduser" "ldapaddsudo" "ldapmodifyuser" "ldapaddusertogroup" "$_DEFAULTLSHELL")
++declare -a helper_scripts=("ldapadduser" "ldapaddsudo" "ldapmodifyuser" "ldapaddusertogroup" "$_BASHSHELL")
+ 
+ # Do some quick sanity tests to make sure
+ # helper scripts are present
+@@ -192,16 +193,16 @@ if [ "$#" -eq 0 ]; then
+ 
+   # If login shell is NOT the default limited shell then
+   # prompt for sudo permissions
+-  if [ "$_SHELL" != "$_DEFAULTLSHELL" ]; then
+-    # Should sudo be activated for this user
+-    shellInput="Add $_username to sudoer list? (yes/NO): "
+-    options=( "yes", "no" )
+-    CONFIRM=`LdapUserInput "$shellInput" options[@]`
+-    if is_yes $CONFIRM
+-    then
+-      LdapAddSudo "$_username"
+-    fi
+-  fi
++  #if [ "$_SHELL" != "$_DEFAULTLSHELL" ]; then
++  #  # Should sudo be activated for this user
++  #  shellInput="Add $_username to sudoer list? (yes/NO): "
++  #  options=( "yes", "no" )
++  #  CONFIRM=`LdapUserInput "$shellInput" options[@]`
++  #  if is_yes $CONFIRM
++  #  then
++  #    LdapAddSudo "$_username"
++  #  fi
++  #fi
+ 
+   # Add to secondary user group
+   shellInput="Add $_username to secondary user group? (yes/NO): "
+-- 
+2.7.4
+
