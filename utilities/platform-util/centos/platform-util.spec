@@ -31,6 +31,8 @@ Platform utilities that packaged on controllers or one node system
 %define local_sbindir %{local_dir}/sbin
 %define pythonroot /usr/lib64/python2.7/site-packages
 
+%define WRSROOT_P cBglipPpsKwBQ
+
 %prep
 %setup
 
@@ -63,6 +65,17 @@ install -m 644 -p -D %{_buildsubdir}/scripts/memcached.service %{buildroot}/etc/
 # Mask the systemd ctrl-alt-delete.target, to disable reboot on ctrl-alt-del
 ln -sf /dev/null %{buildroot}/etc/systemd/system/ctrl-alt-del.target
 
+install -d %{buildroot}/etc/sudoers.d
+install -m 440 %{_buildsubdir}/scripts/wrs.sudo  %{buildroot}/etc/sudoers.d/wrs
+
+%pre
+getent group wrs >/dev/null || groupadd -r wrs
+getent group wrs_protected >/dev/null || groupadd -f -g 345 wrs_protected
+getent passwd wrsroot > /dev/null || \
+useradd -m -g wrs -G root,wrs_protected \
+    -d /home/wrsroot -p %{WRSROOT_P} \
+    -s /bin/sh wrsroot 2> /dev/null || :
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -85,6 +98,7 @@ systemctl enable opt-platform.service
 %{pythonroot}/platform_util/*
 %dir %{pythonroot}/platform_util-%{version}.0-py2.7.egg-info
 %{pythonroot}/platform_util-%{version}.0-py2.7.egg-info/*
+%config(noreplace) %{_sysconfdir}/sudoers.d/wrs
 
 %files -n platform-util-noncontroller
 %defattr(-,root,root,-)
