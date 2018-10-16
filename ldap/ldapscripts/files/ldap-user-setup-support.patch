@@ -1,12 +1,10 @@
----
- Makefile                 |    5 
- man/man1/ldapusersetup.1 |   61 ++++++++++
- sbin/ldapusersetup       |  263 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 327 insertions(+), 2 deletions(-)
 
+diff --git a/sbin/ldapusersetup b/sbin/ldapusersetup
+new file mode 100644
+index 0000000..27d12dc
 --- /dev/null
 +++ b/sbin/ldapusersetup
-@@ -0,0 +1,263 @@
+@@ -0,0 +1,287 @@
 +#!/bin/sh
 +
 +#  ldapusersetup : interactive setup for adding users to LDAP
@@ -33,7 +31,7 @@
 +  echo "Usage : $0 [-u <username | uid> <field> <value>]
 +where accepted field(s) are as follows:
 +--sudo                        : whether to add this user to sudoer list
-+--shell <\"bash\"|\"lshell\"> : choose the shell for this user (default is lshell)
++--shell <\"bash\"|\"lshell\"> : choose the shell for this user (default is bash)
 +--secondgroup <grp>           : the secondary group to add this user to
 +--passmax     <value>         : the shadowMax value for this user
 +--passwarning <value>         : the shadowWarning value for this user"
@@ -47,11 +45,35 @@
 +# runtime defaults
 +_DEFAULTGRP2="wrs_protected"
 +_DEFAULTLSHELL="/usr/local/bin/cgcs_cli"
++_BASHSHELL="/bin/sh"
 +_DEFAULTSHADOWMAX="90"
 +_DEFAULTSHADOWWARNING="2"
 +_SHELL=""
 +
 +### Helper functions ###
++
++# Gets input from user and validates it.
++# Will only return if input meets validation
++# criteria otherwise will just sit there.
++#
++# Input : input string ($1), valid output options ($2)
++# Output: the validated input
++# Note  : the validation list must be an array
++LdapUserInput () {
++declare -a optionAry=("${!2}")
++while true; do
++    read -p "$1" _output
++    # convert to lower case
++    _output2=${_output,,}
++    # check if output is a valid option
++    if [[ "${optionAry[@]}" =~ "$_output2" ]]; then
++	break
++    else
++       echo "Invalid input \"$_output\". Allowed options: ${optionAry[@]}" >&2
++   fi
++done
++   echo "$_output2"
++}
 +
 +# Delete an ldap user if it exists
 +# and exit with error
@@ -76,25 +98,27 @@
 +LdapAddLoginShell () {
 +  if [ -z "$2" ]; then
 +    # Ask the user for the login shell
-+    echo "Select Login Shell option # [2]: 
++    shellInput="Select Login Shell option # [2]:
 +1) Bash
-+2) Lshell"
-+    read opn
++2) Lshell
++"
++    options=( 1, 2 )
++    opn=`LdapUserInput "$shellInput" options[@]`
 +    case $opn in
-+      1) _SHELL="/bin/sh";;
++      1) _SHELL="$_BASHSHELL";;
 +      2) _SHELL="$_DEFAULTLSHELL";;
 +      *)
-+	 [ ! -z "$opn" ] && echo "Invalid option. Selecting Lshell"
-+         _SHELL="$_DEFAULTLSHELL"
++	 [ ! -z "$opn" ] && echo "Invalid option. Selecting Bash"
++         _SHELL="$_BASHSHELL"
 +	 ;;
 +    esac
 +  else
-+    shellopn=${$2,,}
++    shellopn=${2,,}
 +    case $shellopn in
-+      "bash") _SHELL="/bin/sh";;
++      "bash") _SHELL="$_BASHSHELL";;
 +      "lshell") _SHELL="$_DEFAULTLSHELL";;
 +      *)
-+         echo "Invalid option($2). Selecting Lshell"; _SHELL="$_DEFAULTLSHELL"
++         echo "Invalid option($2). Selecting Bash"; _SHELL="$_BASHSHELL"
 +	 ;;
 +    esac
 +  fi
@@ -148,14 +172,13 @@
 +  echo "Updating password expiry to $_newWarning days"
 +}
 +
-+
 +# Since this setup script is meant to be a
 +# wrapper on top of existing ldap scripts,
 +# it share invoke those... we could have achieved
 +# loose coupling by not relying on helpers but
 +# at the expense of massively redundant code
 +# duplication.
-+declare -a helper_scripts=("ldapadduser" "ldapaddsudo" "ldapmodifyuser" "ldapaddusertogroup" "$_DEFAULTLSHELL")
++declare -a helper_scripts=("ldapadduser" "ldapaddsudo" "ldapmodifyuser" "ldapaddusertogroup" "$_BASHSHELL")
 +
 +# Do some quick sanity tests to make sure
 +# helper scripts are present
@@ -177,22 +200,21 @@
 +
 +  # If login shell is NOT the default limited shell then
 +  # prompt for sudo permissions
-+  if [ "$_SHELL" != "$_DEFAULTLSHELL" ]; then
-+    # Should sudo be activated for this user
-+    echo -n "Add $_username to sudoer list? (yes/NO): "
-+    read CONFIRM
-+    CONFIRM=${CONFIRM,,}
-+
-+    if is_yes $CONFIRM
-+    then
-+      LdapAddSudo "$_username"
-+    fi
-+  fi
++  #if [ "$_SHELL" != "$_DEFAULTLSHELL" ]; then
++  #  # Should sudo be activated for this user
++  #  shellInput="Add $_username to sudoer list? (yes/NO): "
++  #  options=( "yes", "no" )
++  #  CONFIRM=`LdapUserInput "$shellInput" options[@]`
++  #  if is_yes $CONFIRM
++  #  then
++  #    LdapAddSudo "$_username"
++  #  fi
++  #fi
 +
 +  # Add to secondary user group
-+  echo -n "Add $_username to secondary user group? (yes/NO): "
-+  read CONFIRM
-+  CONFIRM=${CONFIRM,,}
++  shellInput="Add $_username to secondary user group? (yes/NO): "
++  options=( "yes", "no" )
++  CONFIRM=`LdapUserInput "$shellInput" options[@]`
 +  if is_yes $CONFIRM
 +  then
 +    echo -n "Secondary group to add user to? [$_DEFAULTGRP2]: "
@@ -270,9 +292,11 @@
 +  LdapUpdateShadowMax $_username $_shadowMax
 +  LdapUpdateShadowWarning $_username $_shadowWarning
 +fi
+diff --git a/Makefile b/Makefile
+index f81c272..6e5b193 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -41,12 +41,13 @@ SBINFILES =	ldapdeletemachine ldapmodify
+@@ -41,12 +41,13 @@ SBINFILES =	ldapdeletemachine ldapmodifygroup ldapsetpasswd lsldap ldapadduser l
  			ldapdeleteuser ldapsetprimarygroup ldapfinger ldapid ldapgid ldapmodifymachine \
  			ldaprenamegroup ldapaddgroup ldapaddusertogroup ldapdeleteuserfromgroup \
  			ldapinit ldapmodifyuser ldaprenamemachine ldapaddmachine ldapdeletegroup \
@@ -288,6 +312,9 @@
  MAN5FILES = ldapscripts.5
  TMPLFILES = ldapaddgroup.template.sample ldapaddmachine.template.sample \
  			ldapadduser.template.sample
+diff --git a/man/man1/ldapusersetup.1 b/man/man1/ldapusersetup.1
+new file mode 100644
+index 0000000..9b3129b
 --- /dev/null
 +++ b/man/man1/ldapusersetup.1
 @@ -0,0 +1,61 @@

@@ -169,9 +169,6 @@ initscripts
 # setup
 setup
 
-# lshell
-lshell
-
 # nss-pam-ldapd
 nss-pam-ldapd
 
