@@ -1,0 +1,9 @@
+Code-Review+2: Scott Little <scott.little@windriver.com>
+Code-Review+2: Yi Wang <yi.c.wang@intel.com>
+Workflow+1: Yi Wang <yi.c.wang@intel.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Tue, 16 Oct 2018 01:40:24 +0000
+Reviewed-on: https://review.openstack.org/609564
+Project: openstack/stx-integ
+Branch: refs/heads/master
