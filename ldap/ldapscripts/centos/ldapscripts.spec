@@ -14,23 +14,23 @@ Source4: ldapmoduser.template.cgcs
 Source5: ldapaddsudo.template.cgcs
 Source6: ldapmodsudo.template.cgcs
 Source7: ldapscripts.passwd
+Source8: wrs.sudo
 
 Patch0: sudo-support.patch
 Patch1: sudo-delete-support.patch
 Patch2: log_timestamp.patch
 Patch3: ldap-user-setup-support.patch
-Patch4: ldap-user-setup-support-input-validation.patch
-Patch5: ldap-user-setup-noninteractive-mode-fix.patch
-Patch6: allow-anonymous-bind-for-ldap-search.patch
+Patch4: allow-anonymous-bind-for-ldap-search.patch
 
 %define debug_package %{nil}
+
+%define WRSROOT_P cBglipPpsKwBQ
 
 # BuildRequires:	
 # Requires:	
 
 %description
 Shell scripts that allow to manage POSIX accounts (users, groups, machines) in an LDAP directory.
-
 
 %prep
 %setup -q
@@ -39,12 +39,8 @@ Shell scripts that allow to manage POSIX accounts (users, groups, machines) in a
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
-%patch6 -p1
-
 
 %build
-
 
 %install
 make install DESTDIR=%{buildroot}
@@ -52,7 +48,7 @@ make install DESTDIR=%{buildroot}
 rm -Rf %{buildroot}/usr/local/man
 rm -f %{buildroot}/usr/local/sbin/*machine*
 rm -f %{buildroot}/usr/local/etc/ldapscripts/ldapaddmachine.template.sample
-install -d ldroot}}/usr/local/etc/
+install -d %{buildroot}/usr/local/etc/
 install -m 644 %{SOURCE1} %{buildroot}/usr/local/etc/ldapscripts/ldapscripts.conf
 install -m 644 %{SOURCE2} %{buildroot}/usr/local/etc/ldapscripts/ldapadduser.template.cgcs
 install -m 644 %{SOURCE3} %{buildroot}/usr/local/etc/ldapscripts/ldapaddgroup.template.cgcs
@@ -60,6 +56,17 @@ install -m 644 %{SOURCE4} %{buildroot}/usr/local/etc/ldapscripts/ldapmoduser.tem
 install -m 644 %{SOURCE5} %{buildroot}/usr/local/etc/ldapscripts/ldapaddsudo.template.cgcs
 install -m 644 %{SOURCE6} %{buildroot}/usr/local/etc/ldapscripts/ldapmodsudo.template.cgcs
 install -m 600 %{SOURCE7} %{buildroot}/usr/local/etc/ldapscripts/ldapscripts.passwd
+install -d %{buildroot}/etc/sudoers.d
+install -m 440 %{SOURCE8} %{buildroot}/etc/sudoers.d/wrs
+
+%pre
+getent group wrs >/dev/null || groupadd -r wrs
+getent group wrs_protected >/dev/null || groupadd -f -g 345 wrs_protected
+getent passwd wrsroot > /dev/null || \
+useradd -m -g wrs -G root,wrs_protected \
+    -d /home/wrsroot -p %{WRSROOT_P} \
+    -s /bin/sh wrsroot 2> /dev/null || :
+
 
 %files
 %defattr(-,root,root,-)
@@ -67,6 +74,7 @@ install -m 600 %{SOURCE7} %{buildroot}/usr/local/etc/ldapscripts/ldapscripts.pas
 %dir /usr/local/lib/ldapscripts/
 /usr/local/sbin/*
 %config(noreplace) /usr/local/etc/ldapscripts/ldapscripts.passwd
+%config(noreplace) %{_sysconfdir}/sudoers.d/wrs
 /usr/local/etc/ldapscripts/*
 /usr/local/lib/ldapscripts/*
 
