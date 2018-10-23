@@ -1,0 +1,8 @@
+Code-Review+2: Scott Little <scott.little@windriver.com>
+Workflow+1: Scott Little <scott.little@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Tue, 23 Oct 2018 21:12:01 +0000
+Reviewed-on: https://review.openstack.org/612799
+Project: openstack/stx-integ
+Branch: refs/heads/r/2018.10
