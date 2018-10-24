@@ -219,9 +219,6 @@ ntpdate
 # pam
 pam
 
-# shadow-utils
-shadow-utils
-
 # syslog-ng
 syslog-ng
 syslog-ng-libdbi
@@ -231,6 +228,9 @@ novnc
 
 # sudo
 sudo
+
+# config files
+shadow-utils-config
 
 # net-snmp
 net-snmp-utils
