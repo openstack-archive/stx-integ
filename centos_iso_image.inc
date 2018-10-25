@@ -176,7 +176,7 @@ lshell
 nss-pam-ldapd
 
 # centos-release
-centos-release
+centos-release-config
 
 # nfs-utils
 nfs-utils
