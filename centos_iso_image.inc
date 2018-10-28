@@ -185,6 +185,7 @@ nfs-utils-config
 # dhcp
 dhcp
 dhclient
+dhcp-config
 
 # openssh
 openssh
