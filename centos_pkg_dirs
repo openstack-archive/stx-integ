@@ -8,6 +8,7 @@ ldap/nss-pam-ldapd
 base/centos-release
 filesystem/nfs-utils
 base/dhcp
+base/dhcp-config
 base/openssh
 config/facter
 virt/qemu
