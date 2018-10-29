@@ -310,6 +310,7 @@ python-psycopg2
 # dnsmasq
 dnsmasq
 dnsmasq-utils
+dnsmasq-config
 
 # rsync
 rsync
