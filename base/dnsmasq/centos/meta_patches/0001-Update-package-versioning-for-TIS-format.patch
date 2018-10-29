@@ -8,7 +8,7 @@ Subject: [PATCH] update package patching
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/SPECS/dnsmasq.spec b/SPECS/dnsmasq.spec
-index 5cf440a..dd74293 100644
+index 6a96e36..aecf5d4 100644
 --- a/SPECS/dnsmasq.spec
 +++ b/SPECS/dnsmasq.spec
 @@ -13,7 +13,7 @@
@@ -21,5 +21,5 @@ index 5cf440a..dd74293 100644
  
  Group:          System Environment/Daemons
 -- 
-2.7.4
+1.8.3.1
 
