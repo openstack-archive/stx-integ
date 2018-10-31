@@ -208,11 +208,6 @@ lighttpd-mod_mysql_vhost
 # logrotate
 logrotate
 
-# ntp
-ntp
-ntp-perl
-ntpdate
-
 # pam
 pam
 
@@ -231,6 +226,7 @@ sudo
 
 # config files
 sudo-config
+ntp-config
 
 # net-snmp
 net-snmp-utils
