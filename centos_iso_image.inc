@@ -208,11 +208,6 @@ lighttpd-mod_mysql_vhost
 # logrotate
 logrotate
 
-# ntp
-ntp
-ntp-perl
-ntpdate
-
 # pam
 pam
 
