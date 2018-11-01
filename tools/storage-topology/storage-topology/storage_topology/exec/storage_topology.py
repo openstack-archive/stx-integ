@@ -65,7 +65,7 @@ def parse_arguments(show):
         prog=os.path.basename(sys.argv[0]),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent('''\
-            Tool to summarize server storage resouce usage.
+            Tool to summarize server storage resource usage.
             '''),
         epilog=textwrap.dedent('''\
             Tables and Field descriptions:

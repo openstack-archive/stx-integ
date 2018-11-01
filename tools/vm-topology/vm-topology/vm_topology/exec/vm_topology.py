@@ -311,7 +311,7 @@ def parse_arguments(debug, show):
          default_config_files=[NOVACONF],
          prog=os.path.basename(sys.argv[0]),
          description=(
-            'Tool to summarize server resouce usage and vcpu placement'
+            'Tool to summarize server resource usage and vcpu placement'
             'related attributes for nova and libvirt.'),
          # NOTE: oslo_config implementation of _CachedArgumentParser does not
          # configure argparse formatter_class. The resulting epilog text is
