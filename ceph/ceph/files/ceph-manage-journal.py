@@ -54,6 +54,7 @@ def get_partition_uuid(dev):
 ###########################################
 
 DISK_BY_PARTUUID = "/dev/disk/by-partuuid/"
+JOURNAL_UUID='45b0969e-9b03-4f30-b4c6-b4b80ceff106'  # Type of a journal partition
 
 def is_partitioning_correct(disk_node, partition_sizes):
     """ Validate the existence and size of journal partitions"""
@@ -117,6 +118,7 @@ def create_partitions(disk_node, partition_sizes):
 
     # Create partitions in order
     used_space_mib = 1  # leave 1 MB at the beginning of the disk
+    num = 1
     for size in partition_sizes:
         cmd = ['parted', '-s', disk_node, 'unit', 'mib',
                'mkpart', 'primary',
@@ -133,7 +135,20 @@ def create_partitions(disk_node, partition_sizes):
                    "start=%(start)s, end=%(end)s "
                    "on %(disk_node)s reason: %(reason)s" % parms)
             exit(1)
+        # Set partition type to ceph journal
+        # noncritical operation, it makes 'ceph-disk list' output correct info
+        cmd = ['sgdisk',
+               '--change-name={num}:ceph journal'.format(num=num),
+               '--typecode={num}:{uuid}'.format(
+                  num=num,
+                  uuid=JOURNAL_UUID,
+               ),
+               disk_node]
+        _, err, ret = command(cmd)
+        if ret:
+            print ("WARNINIG: Failed to set partition name and typecode")
         used_space_mib += size
+        num += 1
 
 ###########################
 # Manage Journal Location #
@@ -172,7 +187,8 @@ def fix_location(mount_point, journal_node, osdid):
     """ Move the journal to the new partition """
     # Fix symlink
     path = mount_point + "/journal"  # 'journal' symlink path used by ceph-osd
-    new_target = DISK_BY_PARTUUID + get_partition_uuid(journal_node)
+    journal_uuid = get_partition_uuid(journal_node)
+    new_target = DISK_BY_PARTUUID + journal_uuid
     params = {"path": path, "target": new_target}
     try:
         if os.path.lexists(path):
@@ -182,10 +198,20 @@ def fix_location(mount_point, journal_node, osdid):
     except:
         print "Failed to create symlink: %(path)s -> %(target)s" % params
         exit(1)
+    # Fix journal_uuid
+    path = mount_point + "/journal_uuid"
+    try:
+        with open(path, 'w') as f:
+            f.write(journal_uuid)
+    except Exception as ex:
+        # The operation is noncritical, it only makes 'ceph-disk list'
+        # display complete output. We log and continue.
+        params = {"path": path, "uuid": journal_uuid}
+        print "WARNING: Failed to set uuid of %(path)s to %(uuid)s" % params
 
     # Clean the journal partition
-    # even if erasing the partition table, is another journal was present here
-    # it's going to be reused. Journals are always bigger than 100MB
+    # even if erasing the partition table, if another journal was present here
+    # it's going to be reused. Journals are always bigger than 100MB.
     command(['dd', 'if=/dev/zero', 'of=%s' % journal_node,
              'bs=1M', 'count=100'])
 
