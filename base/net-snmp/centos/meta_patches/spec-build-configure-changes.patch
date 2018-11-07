@@ -5,23 +5,30 @@ Subject: [PATCH] spec-configure-without-HOST-RESOURCES-MIB
 
 Signed-off-by: slin14 <shuicheng.lin@intel.com>
 ---
- SPECS/net-snmp.spec | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ SPECS/net-snmp.spec | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/SPECS/net-snmp.spec b/SPECS/net-snmp.spec
-index a1b3720..e6e5d8c 100644
+index 8a24ba1..40af31f 100644
 --- a/SPECS/net-snmp.spec
 +++ b/SPECS/net-snmp.spec
-@@ -342,7 +342,7 @@ rm testing/fulltests/default/T200*
+@@ -1,3 +1,6 @@
++# WRS: Disable check
++%global netsnmp_check 0
++
+ # use netsnmp_tcp_wrappers 0 to disable tcp_wrappers support
+ %{!?netsnmp_tcp_wrappers:%global netsnmp_tcp_wrappers 1}
+ # use nestnmp_check 0 to speed up packaging by disabling 'make test'
+@@ -333,7 +336,7 @@ rm testing/fulltests/default/T200*
  %endif
- 
+
  %build
 -MIBS="host agentx smux \
 +MIBS="agentx smux \
       ucd-snmp/diskio tcp-mib udp-mib mibII/mta_sendmail \
       ip-mib/ipv4InterfaceTable ip-mib/ipv6InterfaceTable \
       ip-mib/ipAddressPrefixTable/ipAddressPrefixTable \
-@@ -363,6 +363,7 @@ MIBS="$MIBS ucd-snmp/lmsensorsMib"
+@@ -354,6 +357,7 @@ MIBS="$MIBS ucd-snmp/lmsensorsMib"
      --with-logfile="/var/log/snmpd.log" \
      --with-persistent-directory="/var/lib/net-snmp" \
      --with-mib-modules="$MIBS" \
@@ -29,6 +36,14 @@ index a1b3720..e6e5d8c 100644
  %if %{netsnmp_tcp_wrappers}
      --with-libwrap=yes \
  %endif
--- 
-2.7.4
+@@ -372,6 +376,7 @@ MIBS="$MIBS ucd-snmp/lmsensorsMib"
+     --with-security-modules=tsm  \
+     --with-mysql \
+     --with-systemd \
++    --without-nl \
+     --with-sys-contact="root@localhost" <<EOF
+ EOF
+
+--
+1.8.3.1
 

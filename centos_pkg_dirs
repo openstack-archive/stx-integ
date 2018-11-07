@@ -37,6 +37,7 @@ base/sudo
 virt/cloud-init
 base/watchdog
 base/net-snmp
+base/net-snmp-config
 ldap/openldap
 networking/mellanox/mlx4-config
 networking/openvswitch
