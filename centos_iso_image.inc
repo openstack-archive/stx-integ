@@ -229,6 +229,7 @@ syslog-ng-config
 net-snmp-utils
 net-snmp-libs
 net-snmp-python
+net-snmp-config
 
 # openldap
 openldap
