@@ -1,0 +1,10 @@
+Code-Review+2: Don Penney <don.penney@windriver.com>
+Code-Review+1: Saul Wold <sgw@linux.intel.com>
+Code-Review+2: Bob Church <robert.church@windriver.com>
+Workflow+1: Bob Church <robert.church@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Thu, 08 Nov 2018 21:41:05 +0000
+Reviewed-on: https://review.openstack.org/612897
+Project: openstack/stx-integ
+Branch: refs/heads/master
