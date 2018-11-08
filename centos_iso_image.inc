@@ -167,6 +167,7 @@ initscripts
 
 # setup
 setup
+setup-config
 
 # nss-pam-ldapd
 nss-pam-ldapd
