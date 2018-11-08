@@ -1,6 +1,7 @@
 tools/vm-topology
 base/initscripts
 base/util-linux
+base/setup-config
 base/setup
 utilities/namespace-utils
 ldap/nss-pam-ldapd
