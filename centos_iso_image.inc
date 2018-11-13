@@ -210,9 +210,6 @@ lighttpd-mod_mysql_vhost
 logrotate
 logrotate-config
 
-# pam
-pam
-
 # syslog-ng
 syslog-ng
 syslog-ng-libdbi
@@ -228,6 +225,7 @@ sudo-config
 shadow-utils-config
 ntp-config
 rsync-config
+pam-config
 
 # net-snmp
 net-snmp-utils
