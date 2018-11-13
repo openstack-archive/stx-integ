@@ -42,6 +42,12 @@ stop ()
 {
     if [[ "$nodetype" == "controller" ]] || [[ "$nodetype" == "storage" ]]
     then
+        if [[ "$system_type" == "All-in-one" ]] && [[ "$system_mode" == "simplex" ]]
+        then
+            logecho "Ceph services will continue to run on node"
+            exit 0
+        fi
+
         logecho "Stopping ceph services..."
 
         if [ -f ${CEPH_FILE} ]
