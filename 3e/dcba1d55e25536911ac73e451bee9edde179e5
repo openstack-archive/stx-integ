@@ -1,0 +1,9 @@
+Code-Review+2: Bob Church <robert.church@windriver.com>
+Code-Review+2: Scott Little <scott.little@windriver.com>
+Workflow+1: Scott Little <scott.little@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Thu, 15 Nov 2018 16:39:35 +0000
+Reviewed-on: https://review.openstack.org/618037
+Project: openstack/stx-integ
+Branch: refs/heads/master
