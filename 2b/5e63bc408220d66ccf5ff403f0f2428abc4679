@@ -1,0 +1,9 @@
+Code-Review+2: Don Penney <don.penney@windriver.com>
+Code-Review+2: Saul Wold <sgw@linux.intel.com>
+Workflow+1: Saul Wold <sgw@linux.intel.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Mon, 19 Nov 2018 01:28:36 +0000
+Reviewed-on: https://review.openstack.org/617172
+Project: openstack/stx-integ
+Branch: refs/heads/master
