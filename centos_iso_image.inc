@@ -266,6 +266,7 @@ puppet-gnocchi
 
 # systemd
 systemd
+systemd-config
 
 # python-gunicorn
 python2-gunicorn
