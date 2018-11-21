@@ -49,6 +49,17 @@ def get_partition_uuid(dev):
         return None
 
 
+def device_path_to_device_node(device_path):
+    try:
+        output, _, _ = command(["udevadm", "settle", "-E", device_path])
+        out, err, retcode = command(["readlink", "-f", device_path])
+        out = out.rstrip()
+    except Exception as e:
+        return None
+
+    return out
+
+
 ###########################################
 # Manage Journal Disk Partitioning Scheme #
 ###########################################
@@ -56,8 +67,12 @@ def get_partition_uuid(dev):
 DISK_BY_PARTUUID = "/dev/disk/by-partuuid/"
 JOURNAL_UUID='45b0969e-9b03-4f30-b4c6-b4b80ceff106'  # Type of a journal partition
 
-def is_partitioning_correct(disk_node, partition_sizes):
+
+def is_partitioning_correct(disk_path, partition_sizes):
     """ Validate the existence and size of journal partitions"""
+
+    # Obtain the device node from the device path.
+    disk_node = device_path_to_device_node(disk_path)
 
     # Check that partition table format is GPT
     output, _, _ = command(["udevadm", "settle", "-E", disk_node])
@@ -88,8 +103,11 @@ def is_partitioning_correct(disk_node, partition_sizes):
     return True
 
 
-def create_partitions(disk_node, partition_sizes):
+def create_partitions(disk_path, partition_sizes):
     """ Recreate partitions """
+
+    # Obtain the device node from the device path.
+    disk_node = device_path_to_device_node(disk_path)
 
     # After creating a new partition table on a device, Udev does not
     # always remove old symlinks (i.e. to previous partitions on that device).
@@ -157,8 +175,12 @@ def create_partitions(disk_node, partition_sizes):
 OSD_PATH = "/var/lib/ceph/osd/"
 
 
-def mount_data_partition(data_node, osdid):
+def mount_data_partition(data_path, osdid):
     """ Mount an OSD data partition and return the mounted path """
+
+    # Obtain the device node from the device path.
+    data_node = device_path_to_device_node(data_path)
+
     mount_path = OSD_PATH + "ceph-" + str(osdid)
     output, _, _ = command(['mount'])
     regex = "^" + data_node + ".*" + mount_path
@@ -174,8 +196,12 @@ def mount_data_partition(data_node, osdid):
     return mount_path
 
 
-def is_location_correct(path, journal_node, osdid):
+def is_location_correct(path, journal_path, osdid):
     """ Check if location points to the correct device """
+
+    # Obtain the device node from the device path.
+    journal_node = device_path_to_device_node(journal_path)
+
     cur_node = os.path.realpath(path + "/journal")
     if cur_node == journal_node:
         return True
@@ -183,8 +209,12 @@ def is_location_correct(path, journal_node, osdid):
         return False
 
 
-def fix_location(mount_point, journal_node, osdid):
+def fix_location(mount_point, journal_path, osdid):
     """ Move the journal to the new partition """
+
+    # Obtain the device node from the device path.
+    journal_node = device_path_to_device_node(journal_path)
+
     # Fix symlink
     path = mount_point + "/journal"  # 'journal' symlink path used by ceph-osd
     journal_uuid = get_partition_uuid(journal_node)
@@ -247,14 +277,14 @@ def main(argv):
     if len(argv) != 2:
         err = True
     elif argv[0] == "partitions":
-        valid_keys = ['disk_node', 'journals']
+        valid_keys = ['disk_path', 'journals']
         partitions = get_input(argv[1], valid_keys)
         if not partitions:
             err = True
         elif not isinstance(partitions['journals'], list):
             err = True
     elif argv[0] == "location":
-        valid_keys = ['data_node', 'journal_node', 'osdid']
+        valid_keys = ['data_path', 'journal_path', 'osdid']
         location = get_input(argv[1], valid_keys)
         if not location:
             err = True
@@ -268,28 +298,29 @@ def main(argv):
 
     if partitions:
         # Recreate partitions only if the existing ones don't match input
-        if not is_partitioning_correct(partitions['disk_node'],
+        if not is_partitioning_correct(partitions['disk_path'],
                                        partitions['journals']):
-            create_partitions(partitions['disk_node'], partitions['journals'])
+            create_partitions(partitions['disk_path'], partitions['journals'])
         else:
             print ("Partition table for %s is correct, "
-                   "no need to repartition" % partitions['disk_node'])
+                   "no need to repartition" %
+                   device_path_to_device_node(partitions['disk_path']))
     elif location:
         # we need to have the data partition mounted & we can let it mounted
-        mount_point = mount_data_partition(location['data_node'],
+        mount_point = mount_data_partition(location['data_path'],
                                            location['osdid'])
         # Update journal location only if link point to another partition
         if not is_location_correct(mount_point,
-                                   location['journal_node'],
+                                   location['journal_path'],
                                    location['osdid']):
             print ("Fixing journal location for "
-                   "OSD id: %(id)s" % {"node": location['data_node'],
+                   "OSD id: %(id)s" % {"node": location['data_path'],
                                        "id": location['osdid']})
             fix_location(mount_point,
-                         location['journal_node'],
+                         location['journal_path'],
                          location['osdid'])
         else:
             print ("Journal location for %s is correct,"
-                   "no need to change it" % location['data_node'])
+                   "no need to change it" % location['data_path'])
 
 main(sys.argv[1:])
