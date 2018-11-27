@@ -1,0 +1,10 @@
+Code-Review+1: Stefan Dinescu <stefan.dinescu@windriver.com>
+Code-Review+2: Brent Rowsell <brent.rowsell@windriver.com>
+Code-Review+2: Don Penney <don.penney@windriver.com>
+Workflow+1: Don Penney <don.penney@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Tue, 27 Nov 2018 14:34:02 +0000
+Reviewed-on: https://review.openstack.org/620205
+Project: openstack/stx-integ
+Branch: refs/heads/master
