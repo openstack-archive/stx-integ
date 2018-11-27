@@ -38,7 +38,7 @@ index a16660a..ec85fc2 100644
  Obsoletes:	heartbeat-resources <= %{version}
  Provides:	heartbeat-resources = %{version}
  
-@@ -582,6 +601,25 @@ exit 1
+@@ -582,6 +601,26 @@ exit 1
  %patch203 -p1
  %patch204 -p1
  
