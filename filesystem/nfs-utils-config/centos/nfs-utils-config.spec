@@ -36,8 +36,21 @@ if [ $1 -eq 1 ] ; then
         cp -f %{_datadir}/starlingx/stx.nfsmount.conf %{_sysconfdir}/nfsmount.conf
         chmod 644 %{_sysconfdir}/nfsmount.conf
 fi
-/bin/systemctl enable nfscommon.service  >/dev/null 2>&1 || :
-/bin/systemctl enable nfsserver.service  >/dev/null 2>&1 || :
+# WRS - remove these service files as rpc-statd is started by nfscommon
+rm -f %{_unitdir}/rpc-statd.service
+rm -f %{_unitdir}/rpc-statd-notify.service
+rm -f %{_unitdir}/nfs-lock.service
+rm -f %{_unitdir}/nfslock.service
+
+%{_bindir}/systemctl enable nfscommon.service  >/dev/null 2>&1 || :
+%{_bindir}/systemctl enable nfsserver.service  >/dev/null 2>&1 || :
+
+%preun
+if [ $1 -eq 0 ]; then
+    %{_bindir}/systemctl disable nfscommon.service >/dev/null 2>&1 || :
+    ${_bindir}/systemctl disable nfsserver.service >/dev/null 2>&1 || :
+fi
+
 
 %files
 %defattr(-,root,root,-)
