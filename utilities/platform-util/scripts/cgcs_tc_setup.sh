@@ -1,14 +1,15 @@
 #!/bin/sh
 
 #
-# Copyright (c) 2017 Wind River Systems, Inc.
+# Copyright (c) 2017-2018 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
 
 # $1 - interface
 # $2 - interface type [mgmt, infra]
-# $3 - dummy used to determine if we're backgrounded or not
+# $3 - link capacity
+# $4 - dummy used to determine if we're backgrounded or not
 
 DEV=$1
 NETWORKTYPE=$2
@@ -91,21 +92,43 @@ function is_loopback {
     fi
 }
 
+function get_tc_filter_ethertype {
+    local ETHERTYPE=$DEFAULT_ETHERTYPE
+
+    if is_consolidated
+    then
+        if ! is_vlan
+        then
+            # If we have a consolidated VLAN interface, we must set the
+            # protocol to '802.1q' for the underlying Ethernet interface
+            # to be able to match on IP packets coming from the VLAN
+            # interface.
+            ETHERTYPE=802.1q
+        fi
+    fi
+    echo $ETHERTYPE
+    return 0
+}
+
 function setup_tc_port_filter {
     local PORT=$1
     local PORTMASK=$2
     local FLOWID=$3
     local PROTOCOL=$4
+    local PRIORITY=$DEFAULT_PRIORITY
+    local ETHERTYPE=$DEFAULT_ETHERTYPE
+
+    ETHERTYPE=$(get_tc_filter_ethertype)
 
     if [ -z $PROTOCOL ]
     then
         # Apply to TCP and UDP
-        tc filter add dev $DEV protocol ip parent 1:0 prio 1 u32 match ip dport $PORT $PORTMASK flowid $FLOWID
-        tc filter add dev $DEV protocol ip parent 1:0 prio 1 u32 match ip sport $PORT $PORTMASK flowid $FLOWID
+        tc filter add dev $DEV protocol $ETHERTYPE parent 1:0 prio $PRIORITY u32 match ip dport $PORT $PORTMASK flowid $FLOWID
+        tc filter add dev $DEV protocol $ETHERTYPE parent 1:0 prio $PRIORITY u32 match ip sport $PORT $PORTMASK flowid $FLOWID
     else
         # Apply to specific protocol only
-        tc filter add dev $DEV protocol ip parent 1:0 prio 1 u32 match ip protocol 6 0xff match ip dport $PORT $PORTMASK flowid $FLOWID
-        tc filter add dev $DEV protocol ip parent 1:0 prio 1 u32 match ip protocol 6 0xff match ip sport $PORT $PORTMASK flowid $FLOWID
+        tc filter add dev $DEV protocol $ETHERTYPE parent 1:0 prio $PRIORITY u32 match ip protocol $PROTOCOL 0xff match ip dport $PORT $PORTMASK flowid $FLOWID
+        tc filter add dev $DEV protocol $ETHERTYPE parent 1:0 prio $PRIORITY u32 match ip protocol $PROTOCOL 0xff match ip sport $PORT $PORTMASK flowid $FLOWID
     fi
 }
 
@@ -114,8 +137,20 @@ function setup_tc_tos_filter
     local TOS=$1
     local TOSMASK=$2
     local FLOWID=$3
+    local ETHERTYPE=$4
+    local PRIORITY=$5
 
-    tc filter add dev $DEV protocol ip parent 1:0 prio 1 u32 match ip tos $TOS $TOSMASK flowid $FLOWID
+    if [ -z $ETHERTYPE ]
+    then
+        ETHERTYPE=$DEFAULT_ETHERTYPE
+    fi
+
+    if [ -z $PRIORITY ]
+    then
+        PRIORITY=$DEFAULT_PRIORITY
+    fi
+
+    tc filter add dev $DEV protocol $ETHERTYPE parent 1:0 prio $PRIORITY u32 match ip tos $TOS $TOSMASK flowid $FLOWID
 }
 
 function setup_root_tc
@@ -147,13 +182,24 @@ function setup_hiprio_tc
     local FLOWQ=10
     local CLASSID=1:$FLOWQ
     local FLOWID=$CLASSID
+    local ETHERTYPE=$DEFAULT_ETHERTYPE
+    ETHERTYPE=$(get_tc_filter_ethertype)
 
     # create high priority qdiscs, classes, and queues
     $AC $CLASSID htb rate $((${RATE}*${SPEED}/100))mbit burst 15k ceil $((${CEIL}*${SPEED}/100))mbit prio 3 quantum 60000
     tc qdisc add dev $DEV parent $CLASSID handle $FLOWQ: sfq perturb 10
 
     # filter for high priority traffic
-    setup_tc_tos_filter 0x10 0xf8 $FLOWID
+    setup_tc_tos_filter 0x10 0xf8 $FLOWID $ETHERTYPE
+
+    if [ "$ETHERTYPE" != "$DEFAULT_ETHERTYPE" ]
+    then
+        # For the 'hiprio' class, a second filter at a different priority is
+        # needed in this case to match traffic with the default ethertype.
+        # (ie. high priority management traffic).
+        local PRIORITY=$(($DEFAULT_PRIORITY + 1))
+        setup_tc_tos_filter 0x10 0xf8 $FLOWID $DEFAULT_ETHERTYPE $PRIORITY
+    fi
 }
 
 function setup_migration_tc
@@ -452,6 +498,12 @@ AC="tc class add dev $DEV parent 1:1 classid"
 # protocol numbers
 TCP=6
 UDP=17
+
+# default ethertype for filters
+DEFAULT_ETHERTYPE=ip
+
+# default priority for filters
+DEFAULT_PRIORITY=1
 
 # delete existing qdiscs
 tc qdisc del dev $DEV root > /dev/null 2>&1
