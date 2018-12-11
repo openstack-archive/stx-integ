@@ -8,3 +8,4 @@
 0008-Add-pci_weight_multiple-to-scheduler-filter.patch
 0009-Remove-SerialConsole-from-NovaConf.patch
 0010-Remove-compute-huge.patch
+0011-Remove-compute-reserved-VM-huge-pages.patch

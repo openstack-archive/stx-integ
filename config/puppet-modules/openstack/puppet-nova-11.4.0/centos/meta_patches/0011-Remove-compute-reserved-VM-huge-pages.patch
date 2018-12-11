@@ -1,0 +1,32 @@
+From 9712d6032be7b9175ac8e54b50147aadb7fbe6d0 Mon Sep 17 00:00:00 2001
+From: Tao Liu <tao.liu@windriver.com>
+Date: Thu, 29 Nov 2018 11:00:42 -0600
+Subject: [PATCH 1/1] Remove compute reserved VM huge pages
+
+---
+ SPECS/puppet-nova.spec | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/SPECS/puppet-nova.spec b/SPECS/puppet-nova.spec
+index c40ec94..53a35ac 100644
+--- a/SPECS/puppet-nova.spec
++++ b/SPECS/puppet-nova.spec
+@@ -19,6 +19,7 @@ Patch0007:      0007-Remove-joshuabaird-ipaclient-from-puppet-nova-requir.patch
+ Patch0008:      0008-Adding-pci_weight_multiple-to-nova-scheduler-filter.patch
+ Patch0009:      0009-Remove-SerialConsole-from-NovaConf.patch
+ Patch0010:      0010-Remove-compute-huge.patch
++Patch0011:      0011-Remove-compute-reserved-VM-huge-pages.patch
+
+ BuildArch:      noarch
+
+@@ -49,6 +50,7 @@ Puppet module for OpenStack Nova
+ %patch0008 -p1
+ %patch0009 -p1
+ %patch0010 -p1
++%patch0011 -p1
+
+ find . -type f -name ".*" -exec rm {} +
+ find . -size 0 -exec rm {} +
+--
+1.8.3.1
+
