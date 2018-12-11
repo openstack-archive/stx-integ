@@ -8,7 +8,7 @@ Subject: [PATCH 1/4] Roll up TIS patches
  lib/puppet/type/compute_reserved_config.rb         | 19 +++++
  manifests/api.pp                                   | 17 ++++
  manifests/compute.pp                               | 33 ++++++++
- manifests/compute/libvirt.pp                       | 95 ++++++++++++++++++++++
+ manifests/compute/libvirt.pp                       |111 ++++++++++++++++++++++++++
  manifests/compute/neutron.pp                       | 15 ++++
  manifests/db.pp                                    |  3 +
  manifests/db/sync.pp                               |  3 +
@@ -20,7 +20,7 @@ Subject: [PATCH 1/4] Roll up TIS patches
  manifests/params.pp                                |  2 +-
  manifests/vncproxy/common.pp                       | 68 +++++++++++-----
  spec/classes/nova_api_spec.rb                      |  7 ++
- 16 files changed, 282 insertions(+), 26 deletions(-)
+ 16 files changed, 298 insertions(+), 26 deletions(-)
  create mode 100644 lib/puppet/provider/compute_reserved_config/ini_setting.rb
  create mode 100644 lib/puppet/type/compute_reserved_config.rb
 
@@ -188,7 +188,7 @@ diff --git a/manifests/compute/libvirt.pp b/manifests/compute/libvirt.pp
 index 408a5f6..0d89c04 100644
 --- a/manifests/compute/libvirt.pp
 +++ b/manifests/compute/libvirt.pp
-@@ -126,6 +126,31 @@
+@@ -126,6 +126,36 @@
  #   you actually want to deploy.
  #   Defaults to true for backward compatibility.
  #
@@ -217,10 +217,15 @@ index 408a5f6..0d89c04 100644
 +#   forward progress in transferring data before aborting.
 +#   Defaults to 150
 +#
++# [*mem_stats_period_seconds*]
++#   (optional) A number of seconds to memory usage statistics period.'
++#   Zero or negative value mean to disable memory usage statistics.
++#   Defaults to 10
++#
  class nova::compute::libvirt (
    $ensure_package                             = 'present',
    $libvirt_virt_type                          = 'kvm',
-@@ -150,6 +175,13 @@ class nova::compute::libvirt (
+@@ -150,6 +180,14 @@ class nova::compute::libvirt (
    $compute_driver                             = 'libvirt.LibvirtDriver',
    $preallocate_images                         = $::os_service_default,
    $manage_libvirt_services                    = true,
@@ -231,10 +236,11 @@ index 408a5f6..0d89c04 100644
 +  $live_migration_downtime_delay              = undef,
 +  $live_migration_completion_timeout          = undef,
 +  $live_migration_progress_timeout            = undef,
++  $mem_stats_period_seconds                   = undef,
  ) inherits nova::params {
  
    include ::nova::deps
-@@ -272,4 +304,67 @@ class nova::compute::libvirt (
+@@ -272,4 +310,77 @@ class nova::compute::libvirt (
        'DEFAULT/remove_unused_original_minimum_age_seconds': ensure => absent;
      }
    }
@@ -298,6 +304,16 @@ index 408a5f6..0d89c04 100644
 +  } else {
 +    nova_config {
 +      'libvirt/live_migration_progress_timeout': ensure => absent;
++    }
++  }
++
++  if $mem_stats_period_seconds != undef {
++    nova_config {
++      'libvirt/mem_stats_period_seconds': value => $live_migration_progress_timeout;
++    }
++  } else {
++    nova_config {
++      'libvirt/mem_stats_period_seconds': ensure => absent;
 +    }
 +  }
 +
