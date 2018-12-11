@@ -1,6 +1,6 @@
 [process]
 process  = ceph
-script   = /etc/ceph/ceph_pmon_wrapper.sh
+script   = /etc/init.d/ceph-init-wrapper
 
 style    = lsb
 severity = major          ; minor, major, critical

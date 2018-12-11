@@ -35,6 +35,7 @@
 #
 
 source /usr/bin/tsconfig
+source /etc/platform/platform.conf
 
 CEPH_SCRIPT="/etc/init.d/ceph"
 CEPH_FILE="$VOLATILE_PATH/.ceph_started"
@@ -59,10 +60,19 @@ mkdir -p $DATA_PATH                   # make sure folder exists
 MONITORING_INTERVAL=15
 TRACE_LOOP_INTERVAL=5
 GET_STATUS_TIMEOUT=120
+CEPH_STATUS_TIMEOUT=20
 
 WAIT_FOR_CMD=1
 
 RC=0
+
+args=("$@")
+
+if [ ! -z $ARGS ]
+then
+    IFS=";" read -r -a new_args <<< "$ARGS"
+    args+=("${new_args[@]}")
+fi
 
 wait_for_status ()
 {
@@ -84,12 +94,18 @@ start ()
     if [ -f ${CEPH_FILE} ]
     then
         wait_for_status
-        ${CEPH_SCRIPT} start
+        ${CEPH_SCRIPT} start $1
         RC=$?
     else
         # Ceph is not running on this node, return success
         exit 0
     fi
+}
+
+stop ()
+{
+    wait_for_status
+    ${CEPH_SCRIPT} stop $1
 }
 
 restart ()
@@ -98,7 +114,7 @@ restart ()
     then
         wait_for_status
         touch $CEPH_RESTARTING_FILE
-        ${CEPH_SCRIPT} restart
+        ${CEPH_SCRIPT} restart $1
         rm -f $CEPH_RESTARTING_FILE
     else
         # Ceph is not running on this node, return success
@@ -162,8 +178,21 @@ log_and_kill_hung_procs ()
     done
 }
 
+
 status ()
 {
+    if [[ "$system_type" == "All-in-one" ]] && [[ "$system_mode" != "simplex" ]] && [[ "$1" == "osd" ]]
+    then
+        timeout $CEPH_STATUS_TIMEOUT ceph -s
+        if [ "$?" -ne 0 ]
+        then
+            # Ceph cluster is not accessible. Don't panic, controller swact
+	    # may be in progress.
+	    wlog "-" INFO "Ceph is down, ignoring OSD status."
+	    exit 0
+        fi
+    fi
+
     if [ -f ${CEPH_RESTARTING_FILE} ]
     then
         # Ceph is restarting, we don't report state changes on the first pass
@@ -175,7 +204,7 @@ status ()
         # Make sure the script does not 'exit' between here and the 'rm -f' below
         # or the checkpoint file will be left behind
         touch -f ${CEPH_GET_STATUS_FILE}
-        result=`${CEPH_SCRIPT} status`
+        result=`${CEPH_SCRIPT} status $1`
         RC=$?
         if [ "$RC" -ne 0 ]; then
             erred_procs=`echo "$result" | sort | uniq | awk ' /not running|dead|failed/ {printf "%s ", $1}' | sed 's/://g' | sed 's/, $//g'`
@@ -183,6 +212,11 @@ status ()
             blocked_ops_procs=`echo "$result" | sort | uniq | awk ' /blocked ops/ {printf "%s ", $1}' | sed 's/://g' | sed 's/, $//g'`
             invalid=0
             host=`hostname`
+            if [[ "$system_type" == "All-in-one" ]] && [[ "$system_mode" != "simplex" ]]
+            then
+                # On 2 node configuration we have a floating monitor
+                host="controller"
+            fi
             for i in $(echo $erred_procs $hung_procs)
             do
                if [[ "$i" =~ osd.?[0-9]?[0-9]|mon.$host ]]; then
@@ -214,11 +248,30 @@ status ()
                 done
                 echo "$text" | tr -d '\n' > $CEPH_STATUS_FAILURE_TEXT_FILE
             else
-               echo "$host: '${CEPH_SCRIPT} status' result contains invalid process names: $erred_procs"
-               echo "undetermined_osd" > $CEPH_STATUS_FAILURE_TEXT_FILE
+               echo "$host: '${CEPH_SCRIPT} status $1' result contains invalid process names: $erred_procs"
+               echo "Undetermined osd or monitor id" > $CEPH_STATUS_FAILURE_TEXT_FILE
             fi
         fi
+
         rm -f ${CEPH_GET_STATUS_FILE}
+
+        if [[ $RC == 0 ]] && [[ "$1" == "mon" ]] && [[ "$system_type" == "All-in-one" ]] && [[ "$system_mode" != "simplex" ]]
+        then
+            # SM needs exit code != 0 from 'status mon' argument of the init script on
+            # standby controller otherwise it thinks that the monitor is running and
+            # tries to stop it.
+            # '/etc/init.d/ceph status mon' checks the status of monitors configured in
+            # /etc/ceph/ceph.conf and if it should be running on current host.
+            # If it should not be running it just exits with code 0. This is what
+            # happens on the standby controller.
+            # When floating monitor is running on active controller /var/lib/ceph/mon of
+            # standby is not mounted (Ceph monitor partition is DRBD synced).
+            test -e "/var/lib/ceph/mon/ceph-controller"
+            if [ "$?" -ne 0 ]
+            then
+               exit 3
+            fi
+        fi
     else
         # Ceph is not running on this node, return success
         exit 0
@@ -226,18 +279,21 @@ status ()
 }
 
 
-case "$1" in
+case "${args[0]}" in
     start)
-        start
+        start ${args[1]}
+        ;;
+    stop)
+        stop ${args[1]}
         ;;
     restart)
-        restart
+        restart ${args[1]}
         ;;
     status)
-        status
+        status ${args[1]}
         ;;
     *)
-        echo "Usage: $0 {start|restart|status}"
+        echo "Usage: $0 {start|stop|restart|status} [{mon|osd|osd.<number>|mon.<hostname>}]"
         exit 1
         ;;
 esac
