@@ -79,11 +79,21 @@ def init_func():
     # get current hostname
     obj.hostname = os.uname()[1]
 
+    # get strict setting
+    #
+    # a value of 0 means "heuristic overcommit"
+    # a value of 1 means "always overcommit"
+    # a value of 2 means "don't overcommit".
+    #
+    # set strict true strict=1 if value is = 2
+    # otherwise strict is false strict=0 (default)
+
     fn = '/proc/sys/vm/overcommit_memory'
     if os.path.exists(fn):
         with open(fn, 'r') as infile:
             for line in infile:
-                obj.strict = int(line)
+                if int(line) == 2:
+                    obj.strict = 1
                 break
 
     collectd.info("%s strict:%d" % (PLUGIN, obj.strict))
