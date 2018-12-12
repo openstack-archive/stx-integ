@@ -33,6 +33,7 @@ install -m 755 collect_parms %{buildroot}/usr/local/sbin/collect_parms
 install -m 755 collect_mask_passwords %{buildroot}/usr/local/sbin/collect_mask_passwords
 install -m 755 expect_done %{buildroot}/usr/local/sbin/expect_done
 
+install -m 755 collect_fm.sh %{buildroot}%{_sysconfdir}/collect.d/collect_fm
 install -m 755 collect_sysinv.sh %{buildroot}%{_sysconfdir}/collect.d/collect_sysinv
 install -m 755 collect_psqldb.sh %{buildroot}%{_sysconfdir}/collect.d/collect_psqldb
 install -m 755 collect_openstack.sh %{buildroot}%{_sysconfdir}/collect.d/collect_openstack
