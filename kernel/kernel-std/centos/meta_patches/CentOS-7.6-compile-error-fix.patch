@@ -1,0 +1,33 @@
+From 0969132b53d6eed39b9ea29f483c366cd8d920ed Mon Sep 17 00:00:00 2001
+From: martin <martin@starlingx.com>
+Date: Fri, 28 Dec 2018 21:29:36 +0000
+Subject: [PATCH] CentOS 7.6 compile error fix
+
+---
+ SPECS/kernel.spec | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/SPECS/kernel.spec b/SPECS/kernel.spec
+index fb96134..6c3c0b6 100644
+--- a/SPECS/kernel.spec
++++ b/SPECS/kernel.spec
+@@ -491,6 +491,8 @@ Patch40025: dpt_i2o-fix-build-warning.patch
+ Patch40026: turn-off-write-same-in-smartqpi-driver.patch
+ # Fix assorted compilation issues
+ Patch40027: fix-compilation-issues.patch
++# Fix CentOS 7.6 upgrade compile error
++Patch40028: fix-CentOS-7.6-uprade-compile-error.patch
+ 
+ BuildRoot: %{_tmppath}/kernel-%{KVRA}-root
+ 
+@@ -862,6 +864,7 @@ ApplyOptionalPatch aic94xx-Skip-reading-user-settings-if-flash-is-not-f.patch
+ ApplyOptionalPatch dpt_i2o-fix-build-warning.patch
+ ApplyOptionalPatch turn-off-write-same-in-smartqpi-driver.patch
+ ApplyOptionalPatch fix-compilation-issues.patch
++ApplyOptionalPatch fix-CentOS-7.6-uprade-compile-error.patch
+ 
+ # Any further pre-build tree manipulations happen here.
+ 
+-- 
+1.8.3.1
+

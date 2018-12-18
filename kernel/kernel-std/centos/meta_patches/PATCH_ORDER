@@ -1,3 +1,4 @@
 Build-logic-and-sources-for-TiC.patch
 Kernel-source-patches-for-TiC.patch
 Compile-issues.patch
+CentOS-7.6-compile-error-fix.patch
