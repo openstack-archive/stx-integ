@@ -8,9 +8,11 @@ Signed-off-by: Jim Somerville <Jim.Somerville@windriver.com>
 ---
  arch/x86/mm/kaiser.c          |  2 +-
  drivers/base/dma-contiguous.c |  2 +-
+ drivers/block/drbd/drbd_req.c | 12 ++++++++----
  include/asm-generic/pgtable.h | 20 --------------------
+ include/linux/filter.h        |  4 ++++
  include/linux/huge_mm.h       |  2 +-
- 4 files changed, 3 insertions(+), 23 deletions(-)
+ 6 files changed, 15 insertions(+), 27 deletions(-)
 
 diff --git a/arch/x86/mm/kaiser.c b/arch/x86/mm/kaiser.c
 index e233c88..5564c8d 100644
@@ -26,7 +28,7 @@ index e233c88..5564c8d 100644
  				    arch_debugfs_dir, NULL, &fops_kaiser_enabled);
  	return 0;
 diff --git a/drivers/base/dma-contiguous.c b/drivers/base/dma-contiguous.c
-index a7d5bda..403101d 100644
+index 8aa445d..57e6b74 100644
 --- a/drivers/base/dma-contiguous.c
 +++ b/drivers/base/dma-contiguous.c
 @@ -309,7 +309,7 @@ struct page *dma_alloc_from_contiguous(struct device *dev, size_t count,
@@ -38,6 +40,43 @@ index a7d5bda..403101d 100644
  		 count, align);
  
  	if (!count)
+diff --git a/drivers/block/drbd/drbd_req.c b/drivers/block/drbd/drbd_req.c
+index 8aa445d..57e6b74 100644
+--- a/drivers/block/drbd/drbd_req.c
++++ b/drivers/block/drbd/drbd_req.c
+@@ -38,13 +38,15 @@ static void _drbd_start_io_acct(struct drbd_conf *mdev, struct drbd_request *req
+ {
+ 	const int rw = bio_data_dir(req->master_bio);
+ 	int cpu;
++	struct request_queue *q = container_of((void*)mdev, struct request_queue, queuedata);
++
+ 	cpu = part_stat_lock();
+-	part_round_stats(cpu, &mdev->vdisk->part0);
++	part_round_stats(q, cpu, &mdev->vdisk->part0);
+ 	part_stat_inc(cpu, &mdev->vdisk->part0, ios[rw]);
+ 	part_stat_add(cpu, &mdev->vdisk->part0, sectors[rw], req->i.size >> 9);
+ 	(void) cpu; /* The macro invocations above want the cpu argument, I do not like
+ 		       the compiler warning about cpu only assigned but never used... */
+-	part_inc_in_flight(&mdev->vdisk->part0, rw);
++	part_inc_in_flight(q, &mdev->vdisk->part0, rw);
+ 	part_stat_unlock();
+ }
+ 
+@@ -54,10 +56,12 @@ static void _drbd_end_io_acct(struct drbd_conf *mdev, struct drbd_request *req)
+ 	int rw = bio_data_dir(req->master_bio);
+ 	unsigned long duration = jiffies - req->start_time;
+ 	int cpu;
++        struct request_queue *q = container_of((void*)mdev, struct request_queue, queuedata);
++
+ 	cpu = part_stat_lock();
+ 	part_stat_add(cpu, &mdev->vdisk->part0, ticks[rw], duration);
+-	part_round_stats(cpu, &mdev->vdisk->part0);
+-	part_dec_in_flight(&mdev->vdisk->part0, rw);
++	part_round_stats(q, cpu, &mdev->vdisk->part0);
++	part_dec_in_flight(q, &mdev->vdisk->part0, rw);
+ 	part_stat_unlock();
+ }
+ 
 diff --git a/include/asm-generic/pgtable.h b/include/asm-generic/pgtable.h
 index 8aa445d..57e6b74 100644
 --- a/include/asm-generic/pgtable.h
@@ -78,11 +117,26 @@ index 8aa445d..57e6b74 100644
  #ifndef pmd_read_atomic
  static inline pmd_t pmd_read_atomic(pmd_t *pmdp)
  {
+diff --git a/include/linux/filter.h b/include/linux/filter.h
+index cddbb317..15ce55f0 100644
+--- a/include/linux/filter.h
++++ b/include/linux/filter.h
+@@ -665,6 +665,10 @@ static inline bool bpf_jit_blinding_enabled(struct bpf_prog *prog)
+ 	return true;
+ }
+ #else
++struct bpf_prog * __weak trace_bpf_int_jit_compile(struct bpf_prog *prog);
++void __weak trace_bpf_jit_compile(struct bpf_prog *prog);
++void __weak trace_bpf_jit_free(struct bpf_prog *fp);
++
+ static inline bool ebpf_jit_enabled(void)
+ {
+ 	return false;
 diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
 index 26ec982..45af11b 100644
 --- a/include/linux/huge_mm.h
 +++ b/include/linux/huge_mm.h
-@@ -362,7 +362,7 @@ static inline int pud_trans_huge_lock(pud_t *pud, struct vm_area_struct *vma,
+@@ -365,7 +365,7 @@ static inline int pud_trans_huge_lock(pud_t *pud, struct vm_area_struct *vma,
  	return 0;
  }
  
