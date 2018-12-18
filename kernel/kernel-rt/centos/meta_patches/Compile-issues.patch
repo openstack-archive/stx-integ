@@ -13,15 +13,15 @@ diff --git a/SPECS/kernel-rt.spec b/SPECS/kernel-rt.spec
 index ab6daf3..3c0e4b4 100644
 --- a/SPECS/kernel-rt.spec
 +++ b/SPECS/kernel-rt.spec
-@@ -420,6 +420,7 @@ Patch1029: dpt_i2o-fix-build-warning.patch
+@@ -420,6 +420,7 @@ Patch1027: dpt_i2o-fix-build-warning.patch
  # DRBD was choking on write same
- Patch1030: turn-off-write-same-in-smartqpi-driver.patch
- Patch1031: restrict-iSCSI-kthreads-to-CPUs-in-cpu_kthread_mask.patch
-+Patch1032: fix-compilation-issues.patch
+ Patch1028: turn-off-write-same-in-smartqpi-driver.patch
+ Patch1029: restrict-iSCSI-kthreads-to-CPUs-in-cpu_kthread_mask.patch
++Patch1030: fix-compilation-issues.patch
  
  BuildRoot: %{_tmppath}/kernel-%{KVERREL}-root
  
-@@ -784,6 +785,7 @@ ApplyPatch aic94xx-Skip-reading-user-settings-if-flash-is-not-f.patch
+@@ -782,6 +783,7 @@ ApplyPatch aic94xx-Skip-reading-user-settings-if-flash-is-not-f.patch
  ApplyPatch dpt_i2o-fix-build-warning.patch
  ApplyPatch turn-off-write-same-in-smartqpi-driver.patch
  ApplyPatch restrict-iSCSI-kthreads-to-CPUs-in-cpu_kthread_mask.patch
