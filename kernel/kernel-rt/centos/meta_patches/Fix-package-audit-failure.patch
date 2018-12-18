@@ -1,0 +1,54 @@
+From 2d4876e08482da60d7fd37449a1687b48c4b3714 Mon Sep 17 00:00:00 2001
+From: Shuicheng Lin <shuicheng.lin@intel.com>
+Date: Thu, 3 Jan 2019 01:16:10 +0800
+Subject: [PATCH] Fix package audit failure for kernel-rt
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+It seems "dist" value is changing in different stage.
+When build srpm, its value is ".el7", so the srpm package name is:
+kernel-rt-3.10.0-957.rt56.910.el7.tis.44.src.rpm
+When build rpm, its value is ".el7.centos", so the srpm package name is:
+kernel-rt-3.10.0-957.rt56.910.el7.centos.tis.44.src.rpm
+These two different name, cause audit failure in build-rpms script, and
+the built rpms are deleted as "Obsolete" rpms.
+
+You could find log like below:
+"
+17:33:58 Auditing for obsolete srpms
+17:33:58 waiting for srpm audit to complete
+17:33:58 removed ‘/localdisk/loadbuild/slin14/starlingx/rt/results/slin14-starlingx-tis-r5-pike-rt/kernel-rt-3.10.0-957.rt56.910.el7.tis.44/kernel-rt-3.10.0-957.rt56.910.el7.centos.tis.44.src.rpm’
+17:33:58 removed ‘/localdisk/loadbuild/slin14/starlingx/rt/rpmbuild/RPMS/kernel-rt-3.10.0-957.rt56.910.el7.centos.tis.44.src.rpm’
+17:33:58 Auditing for obsolete rpms
+17:33:58 waiting for rpm audit to complete
+17:33:58 Failed to find '/localdisk/loadbuild/slin14/starlingx/rt/rpmbuild/SRPMS/kernel-rt-3.10.0-957.rt56.910.el7.centos.tis.44.src.rpm'
+"
+
+Solution:
+Hardcode "dist" to be ".el7" to fix it.
+
+Signed-off-by: Shuicheng Lin <shuicheng.lin@intel.com>
+---
+ SPECS/kernel-rt.spec | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/SPECS/kernel-rt.spec b/SPECS/kernel-rt.spec
+index ce06f3f..caa712a 100644
+--- a/SPECS/kernel-rt.spec
++++ b/SPECS/kernel-rt.spec
+@@ -3,10 +3,8 @@
+ 
+ Summary: The Linux Realtime kernel
+ 
+-# catch building on Fedora
+-%if "%{?dist}" == "" || "0%{?fedora}" != "0"
++#hardcode dist to be .el7 to avoid audit failure at build-rpms stage
+ %global dist .el7
+-%endif
+ 
+ # realtimeN
+ %global rtbuild 910
+-- 
+2.7.4
+

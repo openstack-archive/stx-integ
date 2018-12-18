@@ -1,0 +1,33 @@
+From e6ce0b705994983565c2436e802a5d6cf60b6f9b Mon Sep 17 00:00:00 2001
+From: martin <martin@starlingx.com>
+Date: Sat, 29 Dec 2018 02:45:11 +0000
+Subject: [PATCH] CentOS-7.6 compile error fix
+
+---
+ SPECS/kernel-rt.spec | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/SPECS/kernel-rt.spec b/SPECS/kernel-rt.spec
+index baf239d..ce06f3f 100644
+--- a/SPECS/kernel-rt.spec
++++ b/SPECS/kernel-rt.spec
+@@ -421,6 +421,8 @@ Patch1027: dpt_i2o-fix-build-warning.patch
+ Patch1028: turn-off-write-same-in-smartqpi-driver.patch
+ Patch1029: restrict-iSCSI-kthreads-to-CPUs-in-cpu_kthread_mask.patch
+ Patch1030: fix-compilation-issues.patch
++# Fix CentOS 7.6 upgrade compile error
++Patch1031: fix-CentOS-7.6-uprade-compile-error.patch
+ 
+ BuildRoot: %{_tmppath}/kernel-%{KVERREL}-root
+ 
+@@ -784,6 +786,7 @@ ApplyPatch dpt_i2o-fix-build-warning.patch
+ ApplyPatch turn-off-write-same-in-smartqpi-driver.patch
+ ApplyPatch restrict-iSCSI-kthreads-to-CPUs-in-cpu_kthread_mask.patch
+ ApplyPatch fix-compilation-issues.patch
++ApplyPatch fix-CentOS-7.6-uprade-compile-error.patch
+ 
+ # move off upstream version mechanism
+ if [ -e localversion-rt ]; then
+-- 
+1.8.3.1
+
