@@ -1,0 +1,32 @@
+From fb52632608121ab98281d536ff90507e57658217 Mon Sep 17 00:00:00 2001
+From: Teresa Ho <teresa.ho@windriver.com>
+Date: Mon, 17 Dec 2018 18:05:04 -0500
+Subject: [PATCH 1/1] Added ifup-alias-scope.patch
+
+---
+ SPECS/initscripts.spec | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/SPECS/initscripts.spec b/SPECS/initscripts.spec
+index 6e9fc13..e8ee55c 100644
+--- a/SPECS/initscripts.spec
++++ b/SPECS/initscripts.spec
+@@ -48,6 +48,7 @@ Patch9: sysconfig-unsafe-usage-of-linkdelay-variable.patch
+ Patch10: ipv6-static-route-support.patch
+ Patch11: ifup-eth-stop-waiting-if-link-is-up.patch
+ Patch12: run-dhclient-as-daemon-for-ipv6.patch
++Patch13: ifup-alias-scope.patch
+ 
+ %description
+ The initscripts package contains basic system scripts used
+@@ -80,6 +81,7 @@ Currently, this consists of various memory checking code.
+ %patch10 -p1
+ %patch11 -p1
+ %patch12 -p1
++%patch13 -p1
+  
+ %build
+ make
+-- 
+1.8.3.1
+
