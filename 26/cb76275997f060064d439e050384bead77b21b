@@ -1,0 +1,10 @@
+Code-Review+2: Don Penney <don.penney@windriver.com>
+Code-Review+1: Dean Troyer <dtroyer@gmail.com>
+Code-Review+2: Bob Church <robert.church@windriver.com>
+Workflow+1: Bob Church <robert.church@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Thu, 20 Dec 2018 20:41:03 +0000
+Reviewed-on: https://review.openstack.org/626688
+Project: openstack/stx-integ
+Branch: refs/heads/f/centos76
