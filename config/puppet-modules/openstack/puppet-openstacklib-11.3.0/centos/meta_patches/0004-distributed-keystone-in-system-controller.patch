@@ -1,7 +1,8 @@
 From fc863dbafa9014e6ea48b94cc9dcfa4e939245d8 Mon Sep 17 00:00:00 2001
 From: Kam Nasim <kam.nasim@windriver.com>
 Date: Fri, 11 May 2018 11:02:49 -0400
-Subject: [PATCH] Add region name for distributed keystone in system controller
+Subject: [PATCH] Add region name for distributed keystone in system
+ controller
 
 ---
  SPECS/puppet-openstacklib.spec | 2 ++

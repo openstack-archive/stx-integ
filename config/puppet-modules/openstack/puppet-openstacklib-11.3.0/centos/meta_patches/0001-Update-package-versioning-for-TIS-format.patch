@@ -4,8 +4,10 @@ Date: Mon, 16 Oct 2017 12:06:28 -0500
 Subject: [PATCH] Update package versioning for TIS format
 
 ---
- SPECS/puppet-openstacklib.spec | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ SPECS/puppet-openstacklib.spec     |  2 +-
+ SPECS/puppet-openstacklib.spec.rej | 11 +++++++++++
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+ create mode 100644 SPECS/puppet-openstacklib.spec.rej
 
 diff --git a/SPECS/puppet-openstacklib.spec b/SPECS/puppet-openstacklib.spec
 index 7f3bbd8..8bf2c1b 100644
@@ -14,12 +16,29 @@ index 7f3bbd8..8bf2c1b 100644
 @@ -1,7 +1,7 @@
  %{!?upstream_version: %global upstream_version %{version}%{?milestone}}
  Name:           puppet-openstacklib
- Version:        11.3.0
+ Version:        11.5.0
 -Release:        1%{?dist}
 +Release:        1.el7%{?_tis_dist}.%{tis_patch_ver}
  Summary:        Puppet OpenStack Libraries
  License:        ASL 2.0
  
--- 
+diff --git a/SPECS/puppet-openstacklib.spec.rej b/SPECS/puppet-openstacklib.spec.rej
+new file mode 100644
+index 0000000..213ff29
+--- /dev/null
++++ b/SPECS/puppet-openstacklib.spec.rej
+@@ -0,0 +1,11 @@
++--- SPECS/puppet-openstacklib.spec
+++++ SPECS/puppet-openstacklib.spec
++@@ -1,7 +1,7 @@
++ %{!?upstream_version: %global upstream_version %{version}%{?milestone}}
++ Name:           puppet-openstacklib
++ Version:        11.3.0
++-Release:        1%{?dist}
+++Release:        1.el7%{?_tis_dist}.%{tis_patch_ver}
++ Summary:        Puppet OpenStack Libraries
++ License:        ASL 2.0
++
+--
 1.8.3.1
 
