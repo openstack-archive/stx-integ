@@ -1,0 +1,118 @@
+From af90d4b11c57e45bb822d4c331cad45dd13f7e95 Mon Sep 17 00:00:00 2001
+From: Jim Somerville <Jim.Somerville@windriver.com>
+Date: Wed, 11 Oct 2017 16:38:36 -0400
+Subject: [PATCH] Changes for CentOS 7.4/7.6 support
+
+pick upstream patch to fix build failure with CentOS 7.6 3.10.0.957 kernel
+upstream patch:
+tpm: use struct tpm_chip for tpm_chip_find_get()
+http://git.infradead.org/users/jjs/linux-tpmdd.git/commitdiff/
+aad887f6641145fec2a801da2ce4ed36cf99c6a5
+
+Signed-off-by: Jim Somerville <Jim.Somerville@windriver.com>
+Signed-off-by: Shuicheng Lin <shuicheng.lin@intel.com>
+---
+ ima/ima_crypto.c           | 2 +-
+ ima/ima_init.c             | 2 +-
+ ima/ima_queue.c            | 2 +-
+ integrity/ima/ima_crypto.c | 2 +-
+ integrity/ima/ima_init.c   | 2 +-
+ integrity/ima/ima_queue.c  | 2 +-
+ kcompat.h                  | 4 ----
+ 7 files changed, 6 insertions(+), 10 deletions(-)
+
+diff --git a/ima/ima_crypto.c b/ima/ima_crypto.c
+index 802d5d2..3371d13 100644
+--- a/ima/ima_crypto.c
++++ b/ima/ima_crypto.c
+@@ -644,7 +644,7 @@ static void __init ima_pcrread(int idx, u8 *pcr)
+ 	if (!ima_used_chip)
+ 		return;
+ 
+-	if (tpm_pcr_read(TPM_ANY_NUM, idx, pcr) != 0)
++	if (tpm_pcr_read(NULL, idx, pcr) != 0)
+ 		pr_err("Error Communicating to TPM chip\n");
+ }
+ 
+diff --git a/ima/ima_init.c b/ima/ima_init.c
+index a7362e8..577c7b7 100644
+--- a/ima/ima_init.c
++++ b/ima/ima_init.c
+@@ -115,7 +115,7 @@ int __init ima_init(void)
+ 	
+ 	if (ima_used_chip != 0) {
+ 		ima_used_chip = 0;
+-		rc = tpm_pcr_read(TPM_ANY_NUM, 0, pcr_i);
++		rc = tpm_pcr_read(NULL, 0, pcr_i);
+ 		if (rc == 0)
+ 			ima_used_chip = 1;
+ 	}
+diff --git a/ima/ima_queue.c b/ima/ima_queue.c
+index d9aa5ab..9946363 100644
+--- a/ima/ima_queue.c
++++ b/ima/ima_queue.c
+@@ -145,7 +145,7 @@ static int ima_pcr_extend(const u8 *hash, int pcr)
+ 	if (!ima_used_chip)
+ 		return result;
+ 
+-	result = tpm_pcr_extend(TPM_ANY_NUM, pcr, hash);
++	result = tpm_pcr_extend(NULL, pcr, hash);
+ 	if (result != 0)
+ 		pr_err("Error Communicating to TPM chip, result: %d\n", result);
+ 	return result;
+diff --git a/integrity/ima/ima_crypto.c b/integrity/ima/ima_crypto.c
+index 802d5d2..3371d13 100644
+--- a/integrity/ima/ima_crypto.c
++++ b/integrity/ima/ima_crypto.c
+@@ -644,7 +644,7 @@ static void __init ima_pcrread(int idx, u8 *pcr)
+ 	if (!ima_used_chip)
+ 		return;
+ 
+-	if (tpm_pcr_read(TPM_ANY_NUM, idx, pcr) != 0)
++	if (tpm_pcr_read(NULL, idx, pcr) != 0)
+ 		pr_err("Error Communicating to TPM chip\n");
+ }
+ 
+diff --git a/integrity/ima/ima_init.c b/integrity/ima/ima_init.c
+index 2967d49..29b72cd 100644
+--- a/integrity/ima/ima_init.c
++++ b/integrity/ima/ima_init.c
+@@ -110,7 +110,7 @@ int __init ima_init(void)
+ 	int rc;
+ 
+ 	ima_used_chip = 0;
+-	rc = tpm_pcr_read(TPM_ANY_NUM, 0, pcr_i);
++	rc = tpm_pcr_read(NULL, 0, pcr_i);
+ 	if (rc == 0)
+ 		ima_used_chip = 1;
+ 
+diff --git a/integrity/ima/ima_queue.c b/integrity/ima/ima_queue.c
+index d9aa5ab..9946363 100644
+--- a/integrity/ima/ima_queue.c
++++ b/integrity/ima/ima_queue.c
+@@ -145,7 +145,7 @@ static int ima_pcr_extend(const u8 *hash, int pcr)
+ 	if (!ima_used_chip)
+ 		return result;
+ 
+-	result = tpm_pcr_extend(TPM_ANY_NUM, pcr, hash);
++	result = tpm_pcr_extend(NULL, pcr, hash);
+ 	if (result != 0)
+ 		pr_err("Error Communicating to TPM chip, result: %d\n", result);
+ 	return result;
+diff --git a/kcompat.h b/kcompat.h
+index 59e32a8..3d4e8f6 100644
+--- a/kcompat.h
++++ b/kcompat.h
+@@ -31,9 +31,5 @@
+ 
+ #define __GFP_RECLAIM __GFP_WAIT
+ 
+-#define inode_lock(_node) mutex_lock(&_node->i_mutex)
+-#define inode_unlock(_node) mutex_unlock(&_node->i_mutex)
+-
+-
+ #endif
+ #endif
+-- 
+2.7.4
+

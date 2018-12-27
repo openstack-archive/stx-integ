@@ -35,7 +35,7 @@ Patch01: 0001-integrity-kcompat-support.patch
 Patch02: 0002-integrity-expose-module-params.patch
 Patch03: 0003-integrity-restrict-by-iversion.patch
 Patch04: 0004-integrity-disable-set-xattr-on-imasig.patch
-Patch05: Changes-for-CentOS-7.4-support.patch
+Patch05: Changes-for-CentOS-support.patch
 
 %define kversion %(rpm -q kernel%{?bt_ext}-devel | sort --version-sort | tail -1 | sed 's/kernel%{?bt_ext}-devel-//')
 
