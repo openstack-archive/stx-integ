@@ -1,0 +1,41 @@
+From af08f456b10044213505f4fe10dc868adc207de2 Mon Sep 17 00:00:00 2001
+From: martin <martin@starlingx.com>
+Date: Fri, 28 Dec 2018 00:11:25 +0000
+Subject: [PATCH 4/4] For centos 7.6 upgrade, tboot upgrade from
+ tboot-1.9.6-2.el7.src.rpm to tboot-1.9.6-3.el7.src.rpm.
+
+And source code in tboot-1.9.6-3.el7.src.rpm, tboot/txt/txt.c,
+function "bool txt_s3_launch_environment(void)", code line
+"/* repeat when s3 */^M" end with \r\n, which makes rpm built-in patch
+0008-Fix-security-vulnerabilities-rooted-in-tpm_if-struct.patch apply fail
+with command "git am", but succeed with "patch -p1".
+
+In %prep, patch apply with command "git am", introduced by meta-patch
+0002-TiS-tboot.patch, which makes build error. So add command "tr -d '\r'"
+to elimiate '\r' in tboot/txt/txt.c firstly.
+---
+ SPECS/tboot.spec | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/SPECS/tboot.spec b/SPECS/tboot.spec
+index bbc33e8..65f0905 100644
+--- a/SPECS/tboot.spec
++++ b/SPECS/tboot.spec
+@@ -46,6 +46,14 @@ git config user.email "example@example.com"
+ git config user.name "RHEL example"
+ git add .
+ git commit -a -q -m "baseline."
++
++# eliminate \r in tboot/txt/txt.c, please check commit message
++cp tboot/txt/txt.c tboot/txt/txt.c.bk
++tr -d '\r' < tboot/txt/txt.c.bk > tboot/txt/txt.c
++git add tboot/txt/txt.c
++git commit -m "delete \r"
++rm tboot/txt/txt.c.bk
++
+ git am %{patches}
+ 
+ %build
+-- 
+1.8.3.1
+

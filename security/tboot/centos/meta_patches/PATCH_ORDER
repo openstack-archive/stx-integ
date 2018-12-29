@@ -1,3 +1,4 @@
 0001-tboot-Update-package-versioning-for-TIS-format.patch
 0002-TiS-tboot.patch
 0003-security-set-immutable-attribute.patch
+0004-For-centos-7.6-upgrade-tboot-upgrade-from-tboot-1.9..patch
