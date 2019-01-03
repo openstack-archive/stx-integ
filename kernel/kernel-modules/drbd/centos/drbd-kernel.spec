@@ -9,27 +9,27 @@
 
 Name: drbd-kernel%{?bt_ext}
 Summary: Kernel driver for DRBD
-Version: 8.4.11
+Version: 9.0.16
 %define upstream_release 1
 Release: %{upstream_release}%{?_tis_dist}.%{tis_patch_ver}
+
+# always require a suitable userland
+Requires: drbd-utils >= 9.2.0
+
 %global tarball_version %(echo "%{version}-%{?upstream_release}" | sed -e "s,%{?dist}$,,")
-Group: System Environment/Kernel
+Source: http://oss.linbit.com/drbd/drbd-%{tarball_version}.tar.gz
 License: GPLv2+
-Summary: %{kmod_name} kernel module(s)
+Group: System Environment/Kernel
+URL: http://www.drbd.org/
+BuildRoot: %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 BuildRequires: kernel%{?bt_ext}-devel, redhat-rpm-config, perl, openssl
 ExclusiveArch: x86_64
 
-# Sources.
-Source0: http://oss.linbit.com/drbd/drbd-%{tarball_version}.tar.gz
-
-# WRS
-Patch0001: 0001-remove_bind_before_connect_error.patch
 
 %define kversion %(rpm -q kernel%{?bt_ext}-devel | sort --version-sort | tail -1 | sed 's/kernel%{?bt_ext}-devel-//')
 
-Summary:          drbd kernel module(s)
-Group:            System Environment/Kernel
+
 %global _use_internal_dependency_generator 0
 Provides:         kernel-modules >= %{kversion}
 Provides:         drbd-kernel = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -84,12 +84,11 @@ echo "Done."
 
 %prep
 %setup -q -n drbd-%{tarball_version}
-%patch0001 -p1
 
 %build
 rm -rf obj
 mkdir obj
-ln -s ../scripts obj/
+ln -s ../drbd-headers obj/
 cp -r drbd obj/default
 make -C obj/default %{_smp_mflags} all KDIR=/usr/src/kernels/%{kversion}
 
@@ -119,34 +118,63 @@ do %{__perl} /usr/src/kernels/%{kversion}/scripts/sign-file \
 done
 
 %clean
-%{__rm} -rf %{buildroot}
+rm -rf %{buildroot}
 
 %changelog
-* Wed Dec 16 2015  Philipp Reisner <phil@linbit.com> - 8.4.7-1
+* Thu Oct 25 2018 Philipp Reisner <phil@linbit.com> - 9.0.16-1
 - New upstream release.
 
-* Wed Sep 16 2015  Lars Ellenberg <lars@linbit.com> - 8.4.6-5
+* Tue Aug 14 2018 Philipp Reisner <phil@linbit.com> - 9.0.15-1
 - New upstream release.
 
-* Thu Jul 30 2015 Lars Ellenberg <lars@linbit.com> - 8.4.6-4
+* Tue May 01 2018 Lars Ellenberg <lars@linbit.com> - 9.0.14-1
 - New upstream release.
 
-* Fri Apr  3 2015 Philipp Reisner <phil@linbit.com> - 8.4.6-1
+* Tue Apr 17 2018 Philipp Reisner <phil@linbit.com> - 9.0.13-1
 - New upstream release.
 
-* Mon Jun  2 2014 Philipp Reisner <phil@linbit.com> - 8.4.5-1
+* Mon Jan 22 2018 Philipp Reisner <phil@linbit.com> - 9.0.12-1
 - New upstream release.
 
-* Fri Oct 11 2013 Philipp Reisner <phil@linbit.com> - 8.4.4-1
+* Tue Jan 09 2018 Roland Kammerer <roland.kammerer@linbit.com> - 9.0.11-1
 - New upstream release.
 
-* Tue Feb  5 2013 Philipp Reisner <phil@linbit.com> - 8.4.3-1
+* Fri Dec 22 2017 Roland Kammerer <roland.kammerer@linbit.com> - 9.0.10-1
 - New upstream release.
 
-* Thu Sep  6 2012 Philipp Reisner <phil@linbit.com> - 8.4.2-1
+* Thu Aug 31 2017 Philipp Reisner <phil@linbit.com> - 9.0.9-1
 - New upstream release.
 
-* Tue Dec 20 2011 Philipp Reisner <phil@linbit.com> - 8.4.1-1
+* Mon Jun 19 2017 Philipp Reisner <phil@linbit.com> - 9.0.8-1
+- New upstream release.
+
+* Fri Mar 31 2017 Philipp Reisner <phil@linbit.com> - 9.0.7-1
+- New upstream release.
+
+* Fri Dec 23 2016 Philipp Reisner <phil@linbit.com> - 9.0.6-1
+- New upstream release.
+
+* Thu Oct 20 2016 Philipp Reisner <phil@linbit.com> - 9.0.5-1
+- New upstream release.
+
+* Tue Sep 06 2016 Philipp Reisner <phil@linbit.com> - 9.0.4-1
+- New upstream release.
+
+* Thu Jul 14 2016 Philipp Reisner <phil@linbit.com> - 9.0.3-1
+- New upstream release.
+
+* Tue Apr 19 2016 Philipp Reisner <phil@linbit.com> - 9.0.2-1
+- New upstream release.
+
+* Tue Feb 02 2016 Philipp Reisner <phil@linbit.com> - 9.0.1-1
+- New upstream release.
+
+* Tue Jul 28 2015 Lars Ellenberg <lars@linbit.com> - 9.0.0-3
+- Fixes for the RDMA transport
+- Fixes for 8.4 compatibility
+- Rebuild after compat and build system fixes
+
+* Tue Jun 16 2015 Philipp Reisner <phil@linbit.com> - 9.0.0-1
 - New upstream release.
 
 * Mon Jul 18 2011 Philipp Reisner <phil@linbit.com> - 8.4.0-1
