@@ -1,0 +1,322 @@
+#!/bin/bash
+
+set -x
+set -v
+
+### BEGIN INIT INFO
+# Provides:          ceph/mgr RESTful API plugin
+# Required-Start:    $ceph
+# Required-Stop:     $ceph
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Ceph MGR RESTful API plugin
+# Description:       Ceph MGR RESTful API plugin
+### END INIT INFO
+
+DESC="mgr-restful-plugin"
+DAEMON="/usr/bin/ceph-mgr"
+RUNDIR="/var/run/ceph/mgr"
+# KEEP PIDFILE to be tracked by SM: https://review.openstack.org/#/c/634120
+PIDFILE="${RUNDIR}/../mgr-restful-plugin.pid"
+user_name=`hostname`
+MGR_ARGS="-f --cluster ceph --id ${user_name}"
+# The default 8003 port is already used by StarlingX "lsof -i :8003"
+# The orginal ceph-rest-api use 5001, so we keep using 5001 port here.
+PORT=5001
+REPLY_TIMEOUT_SECONDS=2
+
+restful_check()
+{
+# Steps:
+# 1) List all ceph mgr services
+#     {
+#         "restful": "https://nstcloud:5001/"
+#     }
+# 2) Extract restful plugin service
+#          "restful": "https://nstcloud:5001/"
+# 3) Remove the first colon
+#          "restful" "https://nstcloud:5001/"
+# 4) Remove all quote
+#           restful   https://nstcloud:5001/
+# 5) Split the result into an array
+    restful_rst=`ceph mgr services --connect-timeout $REPLY_TIMEOUT_SECONDS 2>&1 | \
+                 sed -n -e 's/.*\(\"restful\".*\)/\1/p' | \
+                 sed -n -e 's/://p' | \
+                 sed -n -e 's/\"//gp'`
+    IFS=' ' read -a restful_api <<< $restful_rst
+    if [ "pre_${restful_api[0]}" == "pre_restful" ]; then
+        return 0;
+    fi
+
+    return 1;
+}
+
+restful_service_disble_check()
+{
+   count=$1
+   i=0
+   while [ $i -lt $count ]
+   do
+       restful_check
+       rst=$?
+       if [ $rst -ne 0 ]; then
+           return 0
+       fi
+       sleep 1
+       i=$((i+1))
+   done
+   return $rst
+}
+
+mgr_active_check()
+{
+    ceph status --connect-timeout $REPLY_TIMEOUT_SECONDS 2>&1 | \
+    grep '\<mgr:' | grep -i '(active)'
+    rst=$?
+
+    if [ $rst -ne 0 ]; then
+        echo "no active mgr daemon"
+        return 1
+    else
+        echo "one mgr daemon is active"
+        return 0
+    fi
+}
+
+mgr_active_check_times()
+{
+    count=$1
+    i=0
+    rst=0
+    while [ $i -lt $count ]
+    do
+        mgr_active_check
+        rst=$?
+        if [ $rst -eq 0 ]; then
+            break
+        fi
+        i=$((i+1))
+        sleep 0.5
+    done
+
+    return $rst
+}
+
+mgr_check()
+{
+    if [ -f $PIDFILE ]; then
+        PIDDIR=/proc/$(cat $PIDFILE)
+        if [ -d ${PIDDIR} ]; then
+            comm_name=$(cat $PIDDIR/comm)
+            if [ $comm_name == $(basename $DAEMON) ]; then
+                echo "$(basename $DAEMON) is running"
+                return 0;
+            fi
+        fi
+    fi
+
+    echo "$(basename $DAEMON) is not running"
+    return 1;
+}
+
+start_restful_plugin()
+{
+    echo "Enabling ceph mgr restful plugin..."
+    ceph mgr module enable restful
+    rst=$?
+    if [ $rst -eq 0 ]; then
+        echo "ceph mgr restful plugin is enabled, need swith port to $PORT"
+    else
+        echo "ceph mgr restful plugin can't be enabled, abort"
+        return
+    fi
+
+    #ceph config set mgr mgr/restful/${user_name}/server_port $PORT
+    ceph config set mgr mgr/restful/server_port $PORT
+    ceph restful create-self-signed-cert
+    ceph restful create-key admin
+#    ceph mgr module enable restful
+    ceph restful restart
+    restful_check
+    rst=$?
+    if [ $rst -eq 0 ]; then
+        echo "ceph mgr restful plugin is enabled"
+    else
+        echo "failed to enable mgr restful plugin..."
+    fi
+}
+
+start_mgr()
+{
+    # remove originl user
+    ceph auth del mgr.${user_name} > /dev/null 2>&1
+    rm -rf $RUNDIR/*
+
+    echo "Starting $(basename $DAEMON)"
+    # create user and keyring
+    mkdir -p $RUNDIR/ceph-${user_name}
+    ceph auth get-or-create mgr.${user_name} mon 'allow *' osd 'allow *'
+    ceph auth get mgr.${user_name} -o  $RUNDIR/ceph-${user_name}/keyring
+
+    # Enable daemon
+    start-stop-daemon --start --quiet --background \
+        --pidfile ${PIDFILE} --make-pidfile \
+        --exec ${DAEMON} -- $MGR_ARGS
+
+    if [ $? -eq 0 ]; then
+        echo "ceph mgr daemon is started now"
+        mgr_active_check_times 10
+        rst=$?
+        if [ $rst -eq 0 ]; then
+           echo "mgr is active now"
+        else
+           echo "no active mgr daemon"
+        fi
+        return 0
+    else
+        echo "can't enable ceph mgr daemon"
+        return 1
+    fi
+}
+
+start()
+{
+    echo "begin to enable ceph restful plugin"
+    mgr_check
+    rst=$?
+    if [ $rst -ne 0 ]; then
+        start_mgr
+
+        mgr_active_check_times 10
+        rst=$?
+        if [ $rst -ne 0 ]; then
+           echo -n "no active mgr deamon, please check the reason."
+           echo "abort enable ceph restful plugin"
+           exit 1
+        fi
+
+        restful_check
+        rst=$?
+        if [ $rst -ne 0 ]; then
+            start_restful_plugin
+        fi
+        exit 0
+    fi
+
+    mgr_active_check_times 10
+    rst=$?
+    if [ $rst -ne 0 ]; then
+       echo -n "no active mgr deamon, please check the reason."
+       echo "abort enable ceph restful plugin"
+       exit 1
+    fi
+
+    restful_check
+    rst=$?
+    if [ $rst -ne 0 ]; then
+        start_restful_plugin
+    fi
+
+    restful_check
+    rst=$?
+    if [ $rst -ne 0 ]; then
+      echo "failed to enable ceph restful plugin"
+      exit 1
+    fi
+
+    echo "restful plugin is running now"
+    exit 0
+}
+
+stop_restful_plugin()
+{
+    echo -n "Stopping ceph mgr restful plugin..."
+#    ceph restful delete-key admin
+    ceph mgr module disable restful
+
+    ceph mgr module ls | sed -n -e '/enabled_modules/,/disabled_modules/p' | grep -q '\<restful\>'
+    rst=$?
+
+    if [ $rst -eq 0 ]; then
+        echo "failed to disable restful plugin module"
+    fi
+    restful_service_disble_check 4
+    rst=$?
+    if [ $rst -eq 0 ]; then
+        echo "ceph restful plugin service is disabled now"
+    else
+        echo "ceph mgr restful plugin service is not disabled(Potential bug in mgr)"
+    fi
+}
+
+stop_mgr()
+{
+
+    echo -n "Stopping $(basename $DAEMON)"
+    ceph auth del mgr.${user_name} > /dev/null 2>&1
+    start-stop-daemon --stop --quiet --pidfile $PIDFILE
+    if [ $? -eq 0 ]; then
+        echo "ceph mgr daemon is stopped now"
+        rm -rf $RUNDIR/*
+        return 0
+    else
+        echo "failed to stop $(basename $DAEMON)"
+        return 1
+    fi
+}
+
+stop()
+{
+    echo "Begin to stop $DESC"
+    stop_restful_plugin
+    stop_mgr
+    rst=$?
+    if [ $rst -eq 0 ]; then
+        echo "$DESC is stopped now"
+    else
+        echo "Failed to stop $DESC"
+    fi
+}
+
+status()
+{
+    mgr_active_check_times 10
+    rst=$?
+    if [ $rst -ne 0 ]; then
+        echo -n "no active mgr deamon, please check the reason."
+        exit 3
+    fi
+
+    restful_check
+    rst=$?
+    if [ $rst -ne 0 ]; then
+        echo -n "$(basename $DAEMON) is running. "
+        echo "But restful plugin isn't running"
+        exit 3
+    fi
+
+    echo "$DESC is running"
+    exit 0
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart|force-reload|reload)
+        stop
+        start
+        ;;
+    status)
+        status
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|force-reload|restart|reload|status}"
+        exit 1
+        ;;
+esac
+
+exit 0
