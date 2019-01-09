@@ -271,7 +271,7 @@ URL:		http://ceph.com/
 Source0:	%{?_remote_tarball_prefix}ceph-13.2.2.tar.gz
 
 Source1:  ceph.sh
-Source2:  mgr-restful-plugin
+Source2:  mgr-restful-plugin.py
 Source3:  ceph.conf.pmon
 Source4:  ceph-init-wrapper.sh
 Source5:  ceph.conf
@@ -1237,7 +1237,7 @@ mkdir -p %{buildroot}%{_unitdir}
 install -m 750 %{SOURCE1} %{buildroot}%{_sysconfdir}/services.d/controller/
 install -m 750 %{SOURCE1} %{buildroot}%{_sysconfdir}/services.d/storage/
 install -m 750 %{SOURCE1} %{buildroot}%{_sysconfdir}/services.d/worker/
-install -m 750 %{SOURCE2} %{buildroot}%{_initrddir}/
+install -m 750 %{SOURCE2} %{buildroot}%{_initrddir}/mgr-restful-plugin
 install -m 750 %{SOURCE3} %{buildroot}%{_sysconfdir}/ceph/
 install -m 750 %{SOURCE4} %{buildroot}%{_initrddir}/ceph-init-wrapper
 install -m 640 %{SOURCE5} %{buildroot}%{_sysconfdir}/ceph/
