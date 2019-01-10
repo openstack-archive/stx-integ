@@ -1,0 +1,11 @@
+Code-Review+2: Bob Church <robert.church@windriver.com>
+Code-Review+1: Tao Liu <tao.liu@windriver.com>
+Code-Review+2: Don Penney <don.penney@windriver.com>
+Code-Review+1: Eric MacDonald <eric.macdonald@windriver.com>
+Workflow+1: Don Penney <don.penney@windriver.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Thu, 10 Jan 2019 15:12:24 +0000
+Reviewed-on: https://review.openstack.org/628341
+Project: openstack/stx-integ
+Branch: refs/heads/master
