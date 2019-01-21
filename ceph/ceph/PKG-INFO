@@ -1,0 +1,14 @@
+Metadata-Version: 1.1
+Name: ceph 
+Version: 10.2.6 
+Summary: ceph 
+Home-page:
+Author:
+Author-email:
+License: LGPL-2.1 
+
+Description:
+User space components of the Ceph file system
+
+
+Platform: UNKNOWN
