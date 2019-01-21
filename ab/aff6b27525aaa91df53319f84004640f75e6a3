@@ -1,0 +1,10 @@
+Code-Review+2: Scott Little <scott.little@windriver.com>
+Code-Review+1: John Kung <john.kung@windriver.com>
+Code-Review+2: Saul Wold <sgw@linux.intel.com>
+Workflow+1: Saul Wold <sgw@linux.intel.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Mon, 21 Jan 2019 14:59:56 +0000
+Reviewed-on: https://review.openstack.org/631888
+Project: openstack/stx-integ
+Branch: refs/heads/master
