@@ -13,14 +13,6 @@ Packager:  Wind River <info@windriver.com>
 
 Source0:   %{pypi_name}-v%{version}.tar.gz
 
-Patch0:    fix-osd-crush-remove.patch
-Patch1:    set-default-endpoint.patch
-Patch2:    0001-US63903-Ceph-Rebase-Update-REST-API-to-0.94.2.patch
-Patch3:    add-osd-get-pool-quota.patch
-Patch4:    0001-US70398-Ceph-Rebase-Update-REST-API-to-0.94.5.patch
-Patch5:    fix-osd-tier-add.patch
-Patch6:    US92424-Ceph-Rebase-Update-REST-API-to-10.2.4.patch
-
 BuildArch: noarch
 
 BuildRequires: python
