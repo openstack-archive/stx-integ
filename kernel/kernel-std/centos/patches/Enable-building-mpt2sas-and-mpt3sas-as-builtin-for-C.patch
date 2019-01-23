@@ -15760,7 +15760,7 @@ index 0000000..a580770
 +	Mpi2EventNotificationReply_t *mpi_reply);
 +
 +void mpt2sas_enable_diag_buffer(struct MPT3SAS_ADAPTER *ioc,
-+	u8 bits_to_regsiter);
++	u8 bits_to_register);
 +int mpt2sas_send_diag_release(struct MPT3SAS_ADAPTER *ioc, u8 buffer_type,
 +	u8 *issue_reset);
 +
