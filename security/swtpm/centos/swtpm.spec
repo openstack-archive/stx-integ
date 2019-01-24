@@ -24,8 +24,7 @@ Source:         %{name}-%{version}-253eac5.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 #WRS
-Source1: qemu
-Source2: setup_vtpm
+Source1: setup_vtpm
 
 
 # due to gnutls backlevel API:
@@ -108,7 +107,6 @@ Tools for the TPM emulator from the swtpm package
 
 #WRS
 /etc/libvirt/setup_vtpm
-/etc/libvirt/hooks/qemu
 
 
 %files cuse
@@ -181,10 +179,9 @@ make %{?_smp_mflags} install DESTDIR=${RPM_BUILD_ROOT}
 rm -f ${RPM_BUILD_ROOT}%{_libdir}/*.a ${RPM_BUILD_ROOT}%{_libdir}/*.la
 
 #WRS
-mkdir -p $RPM_BUILD_ROOT/etc/libvirt/hooks
+mkdir -p $RPM_BUILD_ROOT/etc/libvirt
 
-install -m 0500 %{SOURCE1} $RPM_BUILD_ROOT/etc/libvirt/hooks/qemu
-install -m 0500 %{SOURCE2} $RPM_BUILD_ROOT/etc/libvirt/setup_vtpm
+install -m 0500 %{SOURCE1} $RPM_BUILD_ROOT/etc/libvirt/setup_vtpm
 
 # WRS: Don't set (or remove on uninstall): SELINUX Policy and contexts
 #%post cuse
