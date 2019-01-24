@@ -265,6 +265,7 @@ Source4: libvirt.qemu
 Source5: libvirt.uml
 Source6: gnulib-ffc927e.tar.gz
 Source7: keycodemapdb-16e5b07.tar.gz
+Source8: qemu
 
 Requires: libvirt-daemon = %{version}-%{release}
 Requires: libvirt-daemon-config-network = %{version}-%{release}
@@ -1493,6 +1494,9 @@ install -p -D -m 644 %{SOURCE2} %{buildroot}/etc/logrotate.d/libvirtd
 install -p -D -m 644 %{SOURCE3} %{buildroot}/etc/logrotate.d/libvirtd.lxc
 install -p -D -m 644 %{SOURCE4} %{buildroot}/etc/logrotate.d/libvirtd.qemu
 install -p -D -m 644 %{SOURCE5} %{buildroot}/etc/logrotate.d/libvirtd.uml
+## Install hooks
+mkdir -p $RPM_BUILD_ROOT/etc/libvirt/hooks
+install -m 0500 %{SOURCE8} $RPM_BUILD_ROOT/etc/libvirt/hooks/qemu
 # WRS: End custom install
 
 %clean
@@ -1876,6 +1880,7 @@ exit 0
 
 # WRS: Customization
 /etc/logrotate.d/*
+/etc/libvirt/hooks/qemu
 
 %files daemon-config-network
 %dir %{_datadir}/libvirt/networks/
