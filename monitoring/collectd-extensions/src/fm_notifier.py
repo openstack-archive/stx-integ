@@ -89,6 +89,7 @@ import collectd
 from fm_api import constants as fm_constants
 from fm_api import fm_api
 import tsconfig.tsconfig as tsc
+import plugin_common as pc
 
 # only load influxdb on the controller
 if tsc.nodetype == 'controller':
@@ -157,8 +158,7 @@ ALARM_ID__EXAMPLE = "100.113"
 # ADD_NEW_PLUGIN: add new alarm id to the list
 ALARM_ID_LIST = [ALARM_ID__CPU,
                  ALARM_ID__MEM,
-                 ALARM_ID__DF,
-                 ALARM_ID__EXAMPLE]
+                 ALARM_ID__DF]
 
 # ADD_NEW_PLUGIN: add plugin name definition
 # WARNING: This must line up exactly with the plugin
@@ -704,18 +704,6 @@ def _get_object(alarm_id, eid):
     return base_obj
 
 
-def is_uuid_like(val):
-    """Returns validation of a value as a UUID.
-
-    For our purposes, a UUID is a canonical form string:
-    aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
-    """
-    try:
-        return str(uuid.UUID(val)) == val
-    except (TypeError, ValueError, AttributeError):
-        return False
-
-
 def _build_entity_id(plugin, plugin_instance):
     """
     Builds an entity id string based on the collectd notification object.
@@ -1170,7 +1158,7 @@ def notifier_func(nObject):
             suppression=base_obj.suppression)
 
         alarm_uuid = api.set_fault(fault)
-        if is_uuid_like(alarm_uuid) is False:
+        if pc.is_uuid_like(alarm_uuid) is False:
             collectd.error("%s %s:%s set_fault failed:%s" %
                            (PLUGIN, base_obj.id, obj.entity_id, alarm_uuid))
             return 0
