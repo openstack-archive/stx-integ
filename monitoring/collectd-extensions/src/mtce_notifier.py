@@ -91,7 +91,7 @@ class collectdMtceNotifierObject:
                                       PLUGIN__CPU,
                                       PLUGIN_INTERFACE,
                                       PLUGIN__EXAMPLE]
-        self.degrade_list__warning = []
+        self.degrade_list__warning = [PLUGIN_INTERFACE]
 
         # the running list of resources that require degrade.
         # a degrade clear message is sent whenever this list is empty.
