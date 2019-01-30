@@ -51,6 +51,9 @@ Source0:        %{project}-v%{kube_version}.tar.gz
 Source1:        %{con_repo}-v%{con_commit}.tar.gz
 Source3:        kubernetes-accounting.conf
 Source4:        kubeadm.conf
+Source5:        kubelet-pmond.conf
+Source6:        kubelet
+Source7:        kubelet-override-pmond.conf
 
 Source33:       genmanpages.sh
 
@@ -913,6 +916,12 @@ echo "+++ INSTALLING kubeadm"
 install -p -m 755 -t %{buildroot}%{_bindir} ${output_path}/kubeadm
 install -d -m 0755 %{buildroot}/%{_sysconfdir}/systemd/system/kubelet.service.d
 install -p -m 0644 -t %{buildroot}/%{_sysconfdir}/systemd/system/kubelet.service.d %{SOURCE4}
+install -d -m 0755 %{buildroot}/%{_sysconfdir}/kubernetes
+install -p -m 0644 -t %{buildroot}/%{_sysconfdir}/kubernetes %{SOURCE7}
+install -d -m 0755 %{buildroot}/%{_sysconfdir}/pmon.d
+install -p -m 0644 -t %{buildroot}/%{_sysconfdir}/kubernetes %{SOURCE5}
+mkdir -p %{buildroot}%{_initrddir}
+install -p -m 0644 -t %{buildroot}/%{_initrddir}/ %{SOURCE6}
 
 binaries=(kube-controller-manager kube-scheduler kube-proxy kubelet kubectl)
 for bin in "${binaries[@]}"; do
@@ -1061,6 +1070,9 @@ fi
 %{_bindir}/kubeadm
 %dir %{_sysconfdir}/systemd/system/kubelet.service.d
 %config(noreplace) %{_sysconfdir}/systemd/system/kubelet.service.d/kubeadm.conf
+%config(noreplace) %{_sysconfdir}/kubernetes/kubelet-override-pmond.conf
+%config(noreplace) %{_sysconfdir}/kubernetes/kubelet-pmond.conf
+%config %{_initrddir}/kubelet
 
 ##############################################
 %files client
