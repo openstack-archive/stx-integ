@@ -226,6 +226,7 @@ ntp-config
 syslog-ng-config
 rsync-config
 pam-config
+kubelet-config
 
 # net-snmp
 net-snmp-utils
