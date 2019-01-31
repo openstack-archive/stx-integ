@@ -5,3 +5,5 @@
 0005-meta-patch-for-patch5.patch
 0006-add-ceph-disk-prepare-invalid-data-disk-value-patch.patch
 0007-Add-StarlingX-specific-restart-command-for-Ceph-moni.patch
+0008-integrate-create-filestore-OSD-patch.patch
+0009-prepare-osd-to-be-started-via-init-script.patch
