@@ -1,0 +1,33 @@
+From c1fecabab78d2dd1744188839af3fd83482a3472 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Thu, 31 Jan 2019 18:31:42 +0800
+Subject: [PATCH 1/2] integrate create filestore OSD patch
+
+The ceph-disk default create bluestore in mimic version.
+For compability, still create filestore OSD here.
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+
+diff --git a/SPECS/puppet-ceph.spec b/SPECS/puppet-ceph.spec
+index b76bf37..e5fca31 100644
+--- a/SPECS/puppet-ceph.spec
++++ b/SPECS/puppet-ceph.spec
+@@ -17,6 +17,7 @@ Patch0004:      0004-US92424-Add-OSD-support-for-persistent-naming.patch
+ Patch0005:      0005-Remove-puppetlabs-apt-as-ceph-requirement.patch
+ Patch0006:      0006-ceph-disk-prepare-invalid-data-disk-value.patch
+ Patch0007:      0007-Add-StarlingX-specific-restart-command-for-Ceph-moni.patch
++Patch0008:      0001-create-filestore-OSD-in-ceph-v13.2.2.patch
+ 
+ BuildArch:      noarch
+ 
+@@ -39,6 +40,7 @@ Community Developed Ceph Module
+ %patch0005 -p1
+ %patch0006 -p1
+ %patch0007 -p1
++%patch0008 -p1
+ 
+ find . -type f -name ".*" -exec rm {} +
+ find . -size 0 -exec rm {} +
+-- 
+2.17.1
+
