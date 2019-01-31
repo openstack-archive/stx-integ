@@ -1,0 +1,26 @@
+From a1ebe11b884e466eff83ce6b9f02b7c9f4b32b31 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 11:26:25 +0800
+Subject: [PATCH 19/38] osd_stat: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 3a3af3f..250d043 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -418,7 +418,7 @@ class CephWrapper(client.CephClient):
+             return self.post('request?wait=1', json = {'prefix': 'osd pool ls'}, **kwargs)
+ 
+     def osd_stat(self, **kwargs):
+-        return self.get('osd/stat', **kwargs)
++        return self.post('request?wait=1', json = {'prefix': 'osd stat'}, **kwargs)
+ 
+     def osd_tree(self, epoch=None, **kwargs):
+         if epoch is not None:
+-- 
+2.17.1
+
