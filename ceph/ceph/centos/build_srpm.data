@@ -1,6 +1,46 @@
 SRC_DIR="$CGCS_BASE/git/ceph"
+DOWNLOADS_DIR="$CGCS_BASE/downloads"
+BOOST_TAR="boost_1_67_0.tar.bz2"
 COPY_LIST="files/* $DISTRO/patches/*"
-TIS_BASE_SRCREV=3f07f7ff1a5c7bfa8d0de12c966594d5fb7cf4ec
+SUBMODULE_LIST=" \
+    $STX_BASE/downloads/ceph-object-corpus-e32bf8ca3dc6151ebe7f205ba187815bc18e1cef.tar.gz, \
+    $STX_BASE/downloads/civetweb-ff2881e2cd5869a71ca91083bad5d12cccd22136.tar.gz, \
+    $STX_BASE/downloads/jerasure-96c76b89d661c163f65a014b8042c9354ccf7f31.tar.gz, \
+    $STX_BASE/downloads/gf-complete-7e61b44404f0ed410c83cfd3947a52e88ae044e1.tar.gz, \
+    $STX_BASE/downloads/rocksdb-f4a857da0b720691effc524469f6db895ad00d8e.tar.gz, \
+    $STX_BASE/downloads/ceph-erasure-code-corpus-2d7d78b9cc52e8a9529d8cc2d2954c7d375d5dd7.tar.gz, \
+    $STX_BASE/downloads/spdk-f474ce6930f0a44360e1cc4ecd606d2348481c4c.tar.gz, \
+    $STX_BASE/downloads/xxHash-1f40c6511fa8dd9d2e337ca8c9bc18b3e87663c9.tar.gz, \
+    $STX_BASE/downloads/isa-l-7e1a337433a340bc0974ed0f04301bdaca374af6.tar.gz, \
+    $STX_BASE/downloads/lua-1fce39c6397056db645718b8f5821571d97869a4.tar.gz, \
+    $STX_BASE/downloads/blkin-f24ceec055ea236a093988237a9821d145f5f7c8.tar.gz, \
+    $STX_BASE/downloads/rapidjson-f54b0e47a08782a6131cc3d60f94d038fa6e0a51.tar.gz, \
+    $STX_BASE/downloads/googletest-fdb850479284e2aae047b87df6beae84236d0135.tar.gz, \
+    $STX_BASE/downloads/isa-l_crypto-603529a4e06ac8a1662c13d6b31f122e21830352.tar.gz, \
+    $STX_BASE/downloads/zstd-f4340f46b2387bc8de7d5320c0b83bb1499933ad.tar.gz, \
+    $STX_BASE/downloads/dpdk-6ece49ad5a26f5e2f5c4af6c06c30376c0ddc387.tar.gz, \
+    $STX_BASE/downloads/googletest-0a439623f75c029912728d80cb7f1b8b48739ca4.tar.gz \
+"
+SUBMODULE_PATH_LIST=" \
+    $SRC_DIR/ceph-object-corpus, \
+    $SRC_DIR/src/civetweb, \
+    $SRC_DIR/src/erasure-code/jerasure/jerasure, \
+    $SRC_DIR/src/erasure-code/jerasure/gf-complete, \
+    $SRC_DIR/src/rocksdb, \
+    $SRC_DIR/ceph-erasure-code-corpus, \
+    $SRC_DIR/src/spdk, \
+    $SRC_DIR/src/xxHash, \
+    $SRC_DIR/src/isa-l, \
+    $SRC_DIR/src/lua, \
+    $SRC_DIR/src/blkin, \
+    $SRC_DIR/src/rapidjson, \
+    $SRC_DIR/src/googletest, \
+    $SRC_DIR/src/crypto/isa-l/isa-l_crypto, \
+    $SRC_DIR/src/zstd, \
+    $SRC_DIR/src/spdk/dpdk, \
+    $SRC_DIR/src/rapidjson/thirdparty/gtest \
+"
+TIS_BASE_SRCREV=02899bfda814146b021136e9d8e80eba494e1126
 TIS_PATCH_VER=GITREVCOUNT+1
 BUILD_IS_BIG=40
 BUILD_IS_SLOW=26
