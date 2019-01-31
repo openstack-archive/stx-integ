@@ -1,0 +1,31 @@
+From 870260b7b90db2b8959fc8e1461c4398c82532b7 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 10:39:14 +0800
+Subject: [PATCH 13/38] osd_crush_rule_dump: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 9463d92..38ca900 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -330,8 +330,11 @@ class CephWrapper(client.CephClient):
+     def osd_crush_dump(self, **kwargs):
+         return self.get('osd/crush/dump', **kwargs)
+ 
+-    def osd_crush_rule_dump(self, **kwargs):
+-        return self.get('osd/crush/rule/dump', **kwargs)
++    def osd_crush_rule_dump(self, name=None, **kwargs):
++        if name is not None:
++            return self.post('request?wait=1', json = {'prefix': 'osd crush rule dump', 'name': name}, **kwargs)
++        else:
++            return self.post('request?wait=1', json = {'prefix': 'osd crush rule dump'}, **kwargs)
+ 
+     def osd_crush_rule_list(self, **kwargs):
+         return self.get('osd/crush/rule/list', **kwargs)
+-- 
+2.17.1
+
