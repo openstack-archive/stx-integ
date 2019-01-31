@@ -1,0 +1,34 @@
+From 88eb0449d5791484a6ea634dcdb6b44e4997bc07 Mon Sep 17 00:00:00 2001
+From: Daniel Badea <daniel.badea@windriver.com>
+Date: Fri, 29 Mar 2019 08:00:15 +0000
+Subject: [PATCH] create-filestore-OSD-in-ceph-v13.2.2
+
+---
+ manifests/osd.pp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/manifests/osd.pp b/manifests/osd.pp
+index 889d28a..1f3d2c3 100644
+--- a/manifests/osd.pp
++++ b/manifests/osd.pp
+@@ -131,7 +131,7 @@ test -z $(ceph-disk list $(readlink -f ${data}) | egrep -o '[0-9a-f]{8}-([0-9a-f
+       # ceph-disk: prepare should be idempotent http://tracker.ceph.com/issues/7475
+       exec { $ceph_prepare:
+ 
+-        command   => "/usr/sbin/ceph-disk --verbose --log-stdout prepare ${cluster_option} ${cluster_uuid_option} ${uuid_option} --fs-type xfs --zap-disk $(readlink -f ${data}) $(readlink -f ${journal})",
++        command   => "/usr/sbin/ceph-disk --verbose --log-stdout prepare --filestore  ${cluster_uuid_option} ${uuid_option} --fs-type xfs --zap-disk $(readlink -f ${data}) $(readlink -f ${journal})",
+         # We don't want to erase the disk if:
+         # 1. There is already ceph data on the disk for our cluster AND
+         # 2. The uuid for the OSD we are configuring matches the uuid for the
+@@ -171,7 +171,7 @@ if ! test -b \$disk ; then
+ fi
+ # activate happens via udev when using the entire device
+ if ! test -b \$disk || ! test -b \${disk}1 || ! test -b \${disk}p1 ; then
+-  ceph-disk activate \$disk || true
++  ceph-disk activate \${disk}1 || true
+ fi
+ if test -f ${udev_rules_file}.disabled && ( test -b \${disk}1 || test -b \${disk}p1 ); then
+   ceph-disk activate \${disk}1 || true
+-- 
+1.8.3.1
+
