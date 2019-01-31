@@ -1,0 +1,27 @@
+From 9b772b040809bd36b7bf82a25b78b2b2d9706576 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 12:39:53 +0800
+Subject: [PATCH 25/38] osd_crush_rule_rm: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 7130071..f5b8250 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -483,8 +483,7 @@ class CephWrapper(client.CephClient):
+             .format(name, root, type), **kwargs)
+ 
+     def osd_crush_rule_rm(self, name, **kwargs):
+-        return self.put('osd/crush/rule/rm?name={0}'
+-                        .format(name), **kwargs)
++        return self.post('request?wait=1', json = {'prefix': 'osd crush rule rm', 'name': name}, **kwargs)
+ 
+     def osd_crush_set(self, id, name, weight, args, **kwargs):
+         return self.put('osd/crush/set?id={0}&weight={1}&args={2}'
+-- 
+2.17.1
+
