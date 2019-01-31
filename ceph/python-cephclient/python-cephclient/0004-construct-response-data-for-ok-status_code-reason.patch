@@ -1,0 +1,79 @@
+From 334e692457815a5376dfa24c949e125aaa77e1eb Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Thu, 24 Jan 2019 18:33:42 +0800
+Subject: [PATCH 04/38] construct response data for ok/status_code/reason
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/client.py | 25 ++++++++++++++++++++++---
+ 1 file changed, 22 insertions(+), 3 deletions(-)
+
+diff --git a/cephclient/client.py b/cephclient/client.py
+index d26b79a..f2f93aa 100644
+--- a/cephclient/client.py
++++ b/cephclient/client.py
+@@ -28,6 +28,7 @@ import requests
+ from requests.packages.urllib3.exceptions import InsecureRequestWarning
+ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+ import subprocess
++from collections import defaultdict
+ 
+ try:
+     from lxml import etree
+@@ -42,6 +43,18 @@ except ImportError:
+ 
+ import cephclient.exceptions as exceptions
+ 
++class respdict(defaultdict):
++    def __init__(self):
++        super(respdict, self).__init__(respdict)
++
++    def __getattr__(self, key):
++        try:
++            return self[key]
++        except KeyError:
++            raise AttributeError(key)
++
++    def __setattr__(self, key, value):
++        self[key] = value
+ 
+ class CephClient(object):
+ 
+@@ -126,17 +139,23 @@ class CephClient(object):
+ 
+         resp = self.http.request(method, self.endpoint + url, auth = self._get_admin_key(), verify = False, **kwargs)
+         rst = json.loads(resp.text)
++        ret_resp = respdict()
++        ret_resp.status_code = resp.status_code
++        ret_resp.ok = True
+ 
+         if rst['has_failed'] == True or rst['state'] != 'success' or len(rst['failed']) != 0 or rst['is_finished'] != True:
+-            resp.ok = False
++            ret_resp.ok = False
++            ret_resp.reason = rst['failed'][0]['outs']
++            ret_resp.status_code = requests.codes.ok + 1
+             body = None
+-            return resp, body
++            return ret_resp, body
+ 
+         try:
+             finished = rst['finished'][0]
+             body = {}
+             if (len(finished) == 0):
+                 body[u'status'] = u'ko'
++                ret_resp.ok = False
+             elif kwargs['json']['format'] is 'json':
+                 body[u'status'] = u'ok'
+                 body[u'output'] = json.loads(str(finished['outb'].strip('\n')))
+@@ -148,7 +167,7 @@ class CephClient(object):
+         except ValueError:
+             body = None
+ 
+-        return resp, body
++        return ret_resp, body
+ 
+     def get(self, url, **kwargs):
+         return self._request(url, 'GET', **kwargs)
+-- 
+2.17.1
+
