@@ -1,0 +1,30 @@
+From 3973d107b8ae5d05936c6216cee946df3682bba9 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 08:49:47 +0800
+Subject: [PATCH 08/38] health: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index a87e2fb..e9d3914 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -39,10 +39,9 @@ class CephWrapper(client.CephClient):
+ 
+     def health(self, detail=None, **kwargs):
+         if detail is not None:
+-            return self.get('health?detail={0}'
+-                            .format(detail), **kwargs)
++            return self.post('request?wait=1', json = {'prefix': 'health', 'detail': detail}, **kwargs)
+         else:
+-            return self.get('health', **kwargs)
++            return self.post('request?wait=1', json = {'prefix': 'health'}, **kwargs)
+ 
+     def quorum_status(self, **kwargs):
+         return self.get('quorum_status', **kwargs)
+-- 
+2.17.1
+
