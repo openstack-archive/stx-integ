@@ -1,0 +1,30 @@
+From f91a879a2b03e61e564281d0ee83cdb37b375c85 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Thu, 17 Jan 2019 22:18:28 +0800
+Subject: [PATCH 05/38] df: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 3f9d909..de8521d 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -30,10 +30,9 @@ class CephWrapper(client.CephClient):
+     ###
+     def df(self, detail=None, **kwargs):
+         if detail is not None:
+-            return self.get('df?detail={0}'
+-                            .format(detail), **kwargs)
++            return self.post('request?wait=1', json = {'prefix': 'df', 'detail': detail}, **kwargs)
+         else:
+-            return self.get('df', **kwargs)
++            return self.post('request?wait=1', json = {'prefix': 'df'}, **kwargs)
+ 
+     def fsid(self, **kwargs):
+         return self.get('fsid', **kwargs)
+-- 
+2.17.1
+
