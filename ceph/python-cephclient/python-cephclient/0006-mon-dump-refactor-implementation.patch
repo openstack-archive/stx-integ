@@ -1,0 +1,30 @@
+From d2a064522cb1cc7cec5596255027344b4069308b Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Thu, 17 Jan 2019 22:29:17 +0800
+Subject: [PATCH 06/38] mon dump: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index de8521d..1d9aacd 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -292,10 +292,9 @@ class CephWrapper(client.CephClient):
+     ###
+     def mon_dump(self, epoch=None, **kwargs):
+         if epoch is not None:
+-            return self.get('mon/dump?epoch={0}'
+-                            .format(epoch), **kwargs)
++            return self.post('request?wait=1', json = {'prefix': 'mon dump', 'epoch': epoch}, **kwargs)
+         else:
+-            return self.get('mon/dump', **kwargs)
++            return self.post('request?wait=1', json = {'prefix': 'mon dump'}, **kwargs)
+ 
+     def mon_getmap(self, epoch=None, **kwargs):
+         kwargs['supported_body_types'] = ['binary']
+-- 
+2.17.1
+
