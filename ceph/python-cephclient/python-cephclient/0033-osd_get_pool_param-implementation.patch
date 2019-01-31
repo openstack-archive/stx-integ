@@ -1,0 +1,27 @@
+From bbefc3247ffd7d7e0ab988151bc57c880f4988a4 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 13:50:41 +0800
+Subject: [PATCH 33/38] osd_get_pool_param implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 2afe316..95c830f 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -398,6 +398,9 @@ class CephWrapper(client.CephClient):
+     def osd_perf(self, **kwargs):
+         return self.get('osd/perf', **kwargs)
+ 
++    def osd_get_pool_param(self, pool, var, **kwargs):
++        return self.osd_pool_get(pool, var, **kwargs)
++
+     def osd_pool_get(self, pool, var, **kwargs):
+         return self.post('request?wait=1', json = {'prefix': 'osd pool get', 'pool': pool, 'var': var}, **kwargs)
+ 
+-- 
+2.17.1
+
