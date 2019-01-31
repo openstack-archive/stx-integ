@@ -1,0 +1,37 @@
+From 8e04ede97b69f92cb91f9ce840dcf24274e9e7d2 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 14:32:41 +0800
+Subject: [PATCH 35/38] pg_dump_stuck: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 22285c3..3a72d1a 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -669,12 +669,14 @@ class CephWrapper(client.CephClient):
+     def pg_dump_pools_json(self, **kwargs):
+         return self.get('pg/dump_pools_json', **kwargs)
+ 
+-    def pg_dump_stuck(self, stuckops=None, **kwargs):
++    def pg_dump_stuck(self, stuckops=None, threshold=None, **kwargs):
++        jsont = dict()
++        jsont['prefix'] = 'pg dump_stuck'
+         if stuckops is not None:
+-            return self.get('pg/dump_stuck?stuckops={0}'
+-                            .format(stuckops), **kwargs)
+-        else:
+-            return self.get('pg/dump_stuck', **kwargs)
++            jsont['stuckops'] = stuckops
++        if threshold is not None:
++            jsont['threshold'] = threshold
++	return self.post('request?wait=1', json = jsont, **kwargs)
+ 
+     def pg_getmap(self, **kwargs):
+         kwargs['supported_body_types'] = ['binary']
+-- 
+2.17.1
+
