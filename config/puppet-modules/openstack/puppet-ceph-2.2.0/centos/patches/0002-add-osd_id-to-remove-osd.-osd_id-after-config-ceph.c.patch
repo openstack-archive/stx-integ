@@ -1,0 +1,39 @@
+From 1971566729806daa5202ed88c47c48e6498ada6d Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Wed, 30 Jan 2019 17:05:37 +0800
+Subject: [PATCH 2/2] add osd_id to remove osd.${osd_id} after config ceph.conf
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+
+diff --git a/manifests/osd.pp b/manifests/osd.pp
+index 1f3d2c3..f7e4413 100644
+--- a/manifests/osd.pp
++++ b/manifests/osd.pp
+@@ -54,6 +54,7 @@ define ceph::osd (
+   $cluster = undef,
+   $cluster_uuid = undef,
+   $uuid = undef,
++  $osd__id = "-1",
+   $exec_timeout = $::ceph::params::exec_timeout,
+   $selinux_file_context = 'ceph_var_lib_t',
+   $fsid = undef,
+@@ -131,7 +132,15 @@ test -z $(ceph-disk list $(readlink -f ${data}) | egrep -o '[0-9a-f]{8}-([0-9a-f
+       # ceph-disk: prepare should be idempotent http://tracker.ceph.com/issues/7475
+       exec { $ceph_prepare:
+ 
+-        command   => "/usr/sbin/ceph-disk --verbose --log-stdout prepare --filestore  ${cluster_uuid_option} ${uuid_option} --fs-type xfs --zap-disk $(readlink -f ${data}) $(readlink -f ${journal})",
++         command   => "/bin/true # comment to satisfy puppet syntax requirements
++set -ex
++if [ \"$osd__id\" = \"-1\" ]; then
++  true
++else
++  ceph osd rm osd.${osd__id} || true
++fi
++  /usr/sbin/ceph-disk --verbose --log-stdout prepare --filestore ${cluster_uuid_option} ${uuid_option} --fs-type xfs --zap-disk $(readlink -f ${data}) $(readlink -f ${journal})
++",
+         # We don't want to erase the disk if:
+         # 1. There is already ceph data on the disk for our cluster AND
+         # 2. The uuid for the OSD we are configuring matches the uuid for the
+-- 
+2.17.1
+

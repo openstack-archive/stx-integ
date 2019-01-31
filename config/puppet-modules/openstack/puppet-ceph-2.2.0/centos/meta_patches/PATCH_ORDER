@@ -6,3 +6,4 @@
 0006-add-ceph-disk-prepare-invalid-data-disk-value-patch.patch
 0007-Add-StarlingX-specific-restart-command-for-Ceph-moni.patch
 0001-integrate-create-filestore-OSD-patch.patch
+0002-add-osd__id-paramter-in-ceph-osd-puppet.patch
