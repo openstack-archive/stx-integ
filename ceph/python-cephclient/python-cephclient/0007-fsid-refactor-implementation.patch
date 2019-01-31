@@ -1,0 +1,26 @@
+From 2a27e7749ce44c05d1ce33fbb52ceeeee5f0d9f1 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Fri, 18 Jan 2019 09:10:07 +0800
+Subject: [PATCH 07/38] fsid: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 1d9aacd..a87e2fb 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -35,7 +35,7 @@ class CephWrapper(client.CephClient):
+             return self.post('request?wait=1', json = {'prefix': 'df'}, **kwargs)
+ 
+     def fsid(self, **kwargs):
+-        return self.get('fsid', **kwargs)
++        return self.post('request?wait=1', json = {'prefix': 'fsid'}, **kwargs)
+ 
+     def health(self, detail=None, **kwargs):
+         if detail is not None:
+-- 
+2.17.1
+
