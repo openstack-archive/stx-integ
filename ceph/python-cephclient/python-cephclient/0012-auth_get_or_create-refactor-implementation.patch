@@ -1,0 +1,40 @@
+From f6f7f9769571784deebdc1a3020762d7fe4325f4 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 10:12:42 +0800
+Subject: [PATCH 12/38] auth_get_or_create: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 6d542c6..9463d92 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -147,16 +147,15 @@ class CephWrapper(client.CephClient):
+     def auth_del(self, entity, **kwargs):
+         return self.post('request?wait=1', json = {'prefix': 'auth del', 'entity': entity}, **kwargs)
+ 
+-    def auth_get_or_create(self, entity, caps={}, file=None, **kwargs):
+-        # XXX-TODO: Implement file input
++    def auth_get_or_create(self, entity, caps={}, **kwargs):
+         full_caps = list()
+         if caps:
+             for key in caps:
+-                permissions = caps[key].replace(' ', '+')
+-                full_caps.append('&caps={0}&caps={1}'.format(key, permissions))
+-
+-        return self.put('auth/get-or-create?entity={0}{1}'
+-                        .format(entity, ''.join(full_caps)), **kwargs)
++                permissions = caps[key]
++                full_caps.append('{0} {1}'.format(key, permissions))
++            return self.post('request?wait=1', json = {'prefix': 'auth get-or-create', 'entity': entity, 'caps': full_caps}, **kwargs)
++        else:
++            return self.post('request?wait=1', json = {'prefix': 'auth get-or-create', 'entity': entity}, **kwargs)
+ 
+     def auth_get_or_create_key(self, entity, caps={}, **kwargs):
+         # XXX-TODO: Implement file input
+-- 
+2.17.1
+
