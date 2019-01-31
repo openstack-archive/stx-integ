@@ -1,0 +1,26 @@
+From 5e03d340bbbb06037095f117ebf6f4504c2b8826 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 08:57:36 +0800
+Subject: [PATCH 09/38] quorum_status: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index e9d3914..38393eb 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -44,7 +44,7 @@ class CephWrapper(client.CephClient):
+             return self.post('request?wait=1', json = {'prefix': 'health'}, **kwargs)
+ 
+     def quorum_status(self, **kwargs):
+-        return self.get('quorum_status', **kwargs)
++        return self.post('request?wait=1', json = {'prefix': 'quorum_status'}, **kwargs)
+ 
+     def report(self, tags=None, **kwargs):
+         if tags is not None:
+-- 
+2.17.1
+
