@@ -1,0 +1,32 @@
+From 3699e30af6e3cea4a889788e9cadc4307d1f483d Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Sat, 26 Jan 2019 18:22:21 +0800
+Subject: [PATCH 30/38] osd_set_pool_quota: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 0f71bc5..e2e984e 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -570,9 +570,11 @@ class CephWrapper(client.CephClient):
+         else:
+             return self.post('request?wait=1', json = {'prefix': 'osd pool set', 'pool': pool, 'var': var, 'val': val}, **kwargs)
+ 
+-    def osd_set_pool_quota(self, pool, field, **kwargs):
+-        return self.put('osd/pool/set-quota?pool={0}&field={1}'
+-                        .format(pool, field), **kwargs)
++    def osd_set_pool_quota(self, pool, field, val, **kwargs):
++        return self.osd_pool_set_quota(pool, field, val, **kwargs)
++
++    def osd_pool_set_quota(self, pool, field, val, **kwargs):
++        return self.post('request?wait=1', json = {'prefix': 'osd pool set-quota', 'pool': pool, 'field': field, 'val': val}, **kwargs)
+ 
+     def osd_repair(self, pool, who, **kwargs):
+         return self.put('osd/repair?who={0}'
+-- 
+2.17.1
+
