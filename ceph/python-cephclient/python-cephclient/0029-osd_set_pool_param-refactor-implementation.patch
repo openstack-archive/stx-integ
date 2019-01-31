@@ -1,0 +1,35 @@
+From e2578bc1fce6deafd83c512751743488a4282e14 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Sat, 26 Jan 2019 18:20:09 +0800
+Subject: [PATCH 29/38] osd_set_pool_param: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 025a109..0f71bc5 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -561,9 +561,14 @@ class CephWrapper(client.CephClient):
+         return self.put('osd/pool/rmsnap?pool={0}&snap={1}'
+                         .format(pool, snap), **kwargs)
+ 
+-    def osd_set_pool_param(self, pool, var, **kwargs):
+-        return self.put('osd/pool/set?pool={0}&var={1}'
+-                        .format(pool, var), **kwargs)
++    def osd_set_pool_param(self, pool, var, val, force = None, **kwargs):
++        return self.osd_pool_set(pool, var, val, force, **kwargs)
++
++    def osd_pool_set(self, pool, var, val, force = None, **kwargs):
++        if force is not None:
++            return self.post('request?wait=1', json = {'prefix': 'osd pool set', 'pool': pool, 'var': var, 'val': val, 'force': force}, **kwargs)
++        else:
++            return self.post('request?wait=1', json = {'prefix': 'osd pool set', 'pool': pool, 'var': var, 'val': val}, **kwargs)
+ 
+     def osd_set_pool_quota(self, pool, field, **kwargs):
+         return self.put('osd/pool/set-quota?pool={0}&field={1}'
+-- 
+2.17.1
+
