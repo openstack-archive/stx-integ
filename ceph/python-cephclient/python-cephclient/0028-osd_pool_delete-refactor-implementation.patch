@@ -1,0 +1,35 @@
+From d27aad9d1473d46b962f61cbfeffc66261af2952 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Sat, 26 Jan 2019 18:18:07 +0800
+Subject: [PATCH 28/38] osd_pool_delete: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index b74b900..025a109 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -536,9 +536,14 @@ class CephWrapper(client.CephClient):
+             jsont['expected_num_objects'] = expected_num_objects
+         return self.post('request?wait=1', json = jsont, **kwargs)
+ 
+-    def osd_pool_delete(self, pool, sure, **kwargs):
+-        return self.put('osd/pool/delete?pool={0}&sure={1}'
+-                        .format(pool, sure), **kwargs)
++    def osd_pool_delete(self, pool, pool2 = None, sure = None, **kwargs):
++        jsont = dict()
++        jsont['prefix'] = 'osd pool delete'
++        if pool2 is not None:
++            jsont['pool2'] = pool2
++        if sure is not None:
++            jsont['sure'] = sure
++        return self.post('request?wait=1', json = jsont, **kwargs)
+ 
+     def osd_pool_param(self, pool, var, **kwargs):
+         return self.put('osd/pool/get?pool={0}&var={1}'
+-- 
+2.17.1
+
