@@ -1,0 +1,38 @@
+From 2a1f46b53fee7935763d08c035b60d67d62ef141 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Sat, 26 Jan 2019 18:28:22 +0800
+Subject: [PATCH 36/38] compability: use ruleset as parameter for
+ osd_pool_create
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 3a72d1a..d98bd5d 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -530,7 +530,7 @@ class CephWrapper(client.CephClient):
+         return self.put('osd/out?ids={0}'
+                         .format(ids), **kwargs)
+ 
+-    def osd_pool_create(self, pool, pg_num, pgp_num = None, pool_type = None, erasure_code_profile = None, rule = None, expected_num_objects = None, **kwargs):
++    def osd_pool_create(self, pool, pg_num, pgp_num = None, pool_type = None, erasure_code_profile = None, ruleset = None, expected_num_objects = None, **kwargs):
+         jsont = dict()
+         jsont['prefix'] = 'osd pool create'
+         jsont['pool'] = pool
+@@ -542,8 +542,8 @@ class CephWrapper(client.CephClient):
+             jsont['pool_type'] = pool_type
+         if erasure_code_profile is not None:
+             jsont['erasure_code_profile'] = erasure_code_profile
+-        if rule is not None:
+-            jsont['rule'] = rule
++        if ruleset is not None:
++            jsont['rule'] = ruleset
+         if expected_num_objects is not None:
+             jsont['expected_num_objects'] = expected_num_objects
+         return self.post('request?wait=1', json = jsont, **kwargs)
+-- 
+2.17.1
+
