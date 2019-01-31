@@ -1,0 +1,30 @@
+From 10a01aa62d4b98b7e713f5e655264a2c0e65f0a5 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 11:57:30 +0800
+Subject: [PATCH 23/38] osd_crush_move: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 07b28a7..119447c 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -458,8 +458,10 @@ class CephWrapper(client.CephClient):
+                         .format(name, args), **kwargs)
+ 
+     def osd_crush_move(self, name, args, **kwargs):
+-        return self.put('osd/crush/move?name={0}&args={1}'
+-                        .format(name, args), **kwargs)
++        #support only one arg e.g. "A=B"
++        full_caps = list()
++        full_caps.append(args)
++        return self.post('request?wait=1', json = {'prefix': 'osd crush move', 'name': name, 'args':full_caps }, **kwargs)
+ 
+     def osd_crush_remove(self, name, ancestor, **kwargs):
+         return self.put('osd/crush/remove?name={0}&ancestor={1}'
+-- 
+2.17.1
+
