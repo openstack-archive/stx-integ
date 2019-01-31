@@ -1,0 +1,35 @@
+From 562460ba64ec32a3700cd5fe8cc222cb340a532d Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 11:36:05 +0800
+Subject: [PATCH 21/38] osd_create: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 36f0ff0..ae0bd91 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -433,9 +433,14 @@ class CephWrapper(client.CephClient):
+         return self.put('osd/blacklist?blacklistop={0}&addr={1}&expire={2}'
+                         .format(blacklistop, addr, expire), **kwargs)
+ 
+-    def osd_create(self, uuid, **kwargs):
+-        return self.put('osd/create?uuid={0}'
+-                        .format(uuid), **kwargs)
++    def osd_create(self, uuid=None, id=None, **kwargs):
++        jsont = dict()
++        jsont['prefix'] = 'osd create'
++        if uuid is not None:
++            jsont['uuid'] = uuid
++        if id is not None:
++            jsont['id'] = id
++        return self.post('request?wait=1', json = jsont, **kwargs)
+ 
+     def osd_crush_add(self, id, weight, args, **kwargs):
+         return self.put('osd/crush/add?id={0}&weight={1}&args={2}'
+-- 
+2.17.1
+
