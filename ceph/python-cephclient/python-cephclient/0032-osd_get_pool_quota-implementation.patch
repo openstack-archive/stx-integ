@@ -1,0 +1,27 @@
+From 4d7ce2e300549240b5bd5b2f5af52db883f2646c Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 13:46:52 +0800
+Subject: [PATCH 32/38] osd_get_pool_quota implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index fa4a570..2afe316 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -408,6 +408,9 @@ class CephWrapper(client.CephClient):
+         else:
+             return self.get('osd/pool/stats', **kwargs)
+ 
++    def osd_get_pool_quota(self, pool, **kwargs):
++        return self.osd_pool_get_quota(pool, **kwargs)
++
+     def osd_pool_get_quota(self, pool, **kwargs):
+         return self.post('request?wait=1', json = {'prefix': 'osd pool get-quota', 'pool': pool}, **kwargs)
+ 
+-- 
+2.17.1
+
