@@ -1,0 +1,30 @@
+From 194e56cd0358c124414e349466f6693b36d225ee Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 11:31:02 +0800
+Subject: [PATCH 20/38] osd_tree: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index 250d043..36f0ff0 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -422,10 +422,9 @@ class CephWrapper(client.CephClient):
+ 
+     def osd_tree(self, epoch=None, **kwargs):
+         if epoch is not None:
+-            return self.get('osd/tree?epoch={0}'
+-                            .format(epoch), **kwargs)
++            return self.post('request?wait=1', json = {'prefix': 'osd tree', 'epoch': epoch}, **kwargs)
+         else:
+-            return self.get('osd/tree', **kwargs)
++            return self.post('request?wait=1', json = {'prefix': 'osd tree'}, **kwargs)
+ 
+     ###
+     # osd PUT calls
+-- 
+2.17.1
+
