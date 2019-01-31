@@ -1,0 +1,29 @@
+From 5e301069d4a8c8f61a4898f0608dd814d4436c0c Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 13:13:02 +0800
+Subject: [PATCH 26/38] osd_down: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index f5b8250..de1c35c 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -502,8 +502,9 @@ class CephWrapper(client.CephClient):
+                         .format(who), **kwargs)
+ 
+     def osd_down(self, ids, **kwargs):
+-        return self.put('osd/down?ids={0}'
+-                        .format(ids), **kwargs)
++        if not isinstance(ids, list):
++            ids = [temp_id for temp_id in ids.strip().split(" ") if temp_id]
++        return self.post('request?wait=1', json = {'prefix': 'osd down', 'ids': ids}, **kwargs)
+ 
+     def osd_in(self, ids, **kwargs):
+         return self.put('osd/in?ids={0}'
+-- 
+2.17.1
+
