@@ -1,0 +1,27 @@
+From ef4456f4eb40f923cb7bb1047208bfa67c2f31fc Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Mon, 21 Jan 2019 11:40:15 +0800
+Subject: [PATCH 22/38] osd_crush_add_bucket: refactor implementation
+
+Signed-off-by: Changcheng Liu <changcheng.liu@intel.com>
+---
+ cephclient/wrapper.py | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/cephclient/wrapper.py b/cephclient/wrapper.py
+index ae0bd91..07b28a7 100644
+--- a/cephclient/wrapper.py
++++ b/cephclient/wrapper.py
+@@ -447,8 +447,7 @@ class CephWrapper(client.CephClient):
+                         .format(id, weight, args), **kwargs)
+ 
+     def osd_crush_add_bucket(self, name, type, **kwargs):
+-        return self.put('osd/crush/add-bucket?name={0}&type={1}'
+-                        .format(name, type), **kwargs)
++        return self.post('request?wait=1', json = {'prefix': 'osd crush add-bucket', 'name': name, 'type': type}, **kwargs)
+ 
+     def osd_crush_create_or_move(self, id, weight, args, **kwargs):
+         return self.put('osd/crush/create-or-move?id={0}&weight={1}&args={2}'
+-- 
+2.17.1
+
