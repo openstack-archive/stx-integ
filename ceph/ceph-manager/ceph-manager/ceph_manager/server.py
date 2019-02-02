@@ -142,8 +142,7 @@ class Service(SysinvConductorUpgradeApi, service.Service):
             messaging.Target(
                 topic=constants.SYSINV_CONDUCTOR_TOPIC))
 
-        self.ceph_api = wrapper.CephWrapper(
-            endpoint='http://localhost:5001/api/v0.1/')
+        self.ceph_api = wrapper.CephWrapper()
 
         # Get initial config from sysinv and send it to
         # services that need it before starting them
