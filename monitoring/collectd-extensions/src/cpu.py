@@ -179,7 +179,7 @@ def read_func():
                                            _schedstat))
             else:
                 collectd.error('%s unsupported schedstat version [%d]' %
-                              (PLUGIN, c.version))
+                               (PLUGIN, c.version))
                 return 0
 
         f.close()
