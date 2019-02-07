@@ -116,6 +116,7 @@ config-files/rsync-config
 config-files/pam-config
 config-files/util-linux-config
 config-files/kubelet-config
+config-files/docker-config
 tools/collector
 grub/grubby
 utilities/platform-util
