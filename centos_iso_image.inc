@@ -227,6 +227,7 @@ syslog-ng-config
 rsync-config
 pam-config
 kubelet-config
+docker-config
 
 # net-snmp
 net-snmp-utils
