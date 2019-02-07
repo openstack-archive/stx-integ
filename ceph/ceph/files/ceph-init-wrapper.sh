@@ -39,8 +39,8 @@ source /etc/platform/platform.conf
 
 CEPH_SCRIPT="/etc/init.d/ceph"
 CEPH_FILE="$VOLATILE_PATH/.ceph_started"
-CEPH_RESTARTING_FILE="$VOLATILE_PATH/.ceph_restarting"
 CEPH_GET_STATUS_FILE="$VOLATILE_PATH/.ceph_getting_status"
+CEPH_OPERATION_FILE="$VOLATILE_PATH/.ceph_operation"
 CEPH_STATUS_FAILURE_TEXT_FILE="/tmp/ceph_status_failure.txt"
 
 BINDIR=/usr/bin
@@ -61,6 +61,9 @@ MONITORING_INTERVAL=15
 TRACE_LOOP_INTERVAL=5
 GET_STATUS_TIMEOUT=120
 CEPH_STATUS_TIMEOUT=20
+CEPH_START_TIMEOUT=60
+CEPH_STOP_TIMEOUT=300
+CEPH_RESTART_TIMEOUT=$(($CEPH_START_TIMEOUT + $CEPH_STOP_TIMEOUT))
 
 WAIT_FOR_CMD=1
 
@@ -73,25 +76,50 @@ if [ ! -z $ARGS ]; then
     args+=("${new_args[@]}")
 fi
 
-wait_for_status ()
-{
-    timeout=$GET_STATUS_TIMEOUT  # wait for status no more than $timeout seconds
-    while [ -f ${CEPH_GET_STATUS_FILE} ] && [ $timeout -gt 0 ]; do
-        sleep 1
-        let timeout-=1
-    done
-    if [ $timeout -eq 0 ]; then
-        wlog "-" "WARN" "Getting status takes more than ${GET_STATUS_TIMEOUT}s, continuing"
-        rm -f $CEPH_GET_STATUS_FILE
+start_operation() {
+   local timeout=$1
+   local name=$2
+   echo "$(($(date +%s) + $timeout)) $name" > $CEPH_OPERATION_FILE
+}
+
+end_operation() {
+   rm -f $CEPH_OPERATION_FILE
+}
+
+get_remaining_time() {
+    local data=$(cat $CEPH_OPERATION_FILE 2>/dev/null)
+    local end_time=$(echo $data | cut -d' ' -f1)
+    if [ -z $end_time ]; then
+        echo 0
+        return
     fi
+    local operation=$(cat $CEPH_OPERATION_FILE 2>/dev/null | cut -d' ' -f2)
+    local now=$(date +%s)
+    local remaining=$((end_time - now))
+    if [ "$remaining" -lt 0 ]; then
+        wlog "-" ERROR "Last operation ($operation) timed-out!" print_trace
+        remaining=0
+    fi
+    echo $remaining
+}
+
+wait_for_operation() {
+    local remaining=$(get_remaining_time)
+    echo "remaining=$remaining"
+    while [ $(get_remaining_time) -gt 0 ]; do
+        sleep 1
+    done
+    end_operation
 }
 
 start ()
 {
     if [ -f ${CEPH_FILE} ]; then
-        wait_for_status
+        wait_for_operation
+        start_operation $CEPH_START_TIMEOUT start
         ${CEPH_SCRIPT} start $1
         RC=$?
+        end_operation
     else
         # Ceph is not running on this node, return success
         exit 0
@@ -100,17 +128,21 @@ start ()
 
 stop ()
 {
-    wait_for_status
+    wait_for_operation
+    start_operation $CEPH_STOP_TIMEOUT stop
     ${CEPH_SCRIPT} stop $1
+    RC=$?
+    end_operation
 }
 
 restart ()
 {
     if [ -f ${CEPH_FILE} ]; then
-        wait_for_status
-        touch $CEPH_RESTARTING_FILE
+        wait_for_operation
+        start_operation $CEPH_RESTART_TIMEOUT restart
         ${CEPH_SCRIPT} restart $1
-        rm -f $CEPH_RESTARTING_FILE
+        RC=$?
+        end_operation
     else
         # Ceph is not running on this node, return success
         exit 0
@@ -183,10 +215,15 @@ status ()
         fi
     fi
 
-    if [ -f ${CEPH_RESTARTING_FILE} ]; then
-        # Ceph is restarting, we don't report state changes on the first pass
-        rm -f ${CEPH_RESTARTING_FILE}
-        exit 0
+    if [ -f ${CEPH_OPERATION_FILE} ]; then
+        if [ $(get_remaining_time) -eq 0 ]; then
+            local operation=$(cat $CEPH_OPERATION_FILE 2>/dev/null | cut -d' ' -f2)
+            wlog "-" ERROR "Last operation ($operation) timed-out!" print_trace
+            rm -f ${CEPH_OPERATION_FILE}
+        else
+            # Ceph operation in progress, we don't report state
+            exit 0
+        fi
     fi
     if [ -f ${CEPH_FILE} ]; then
         # Make sure the script does not 'exit' between here and the 'rm -f' below
