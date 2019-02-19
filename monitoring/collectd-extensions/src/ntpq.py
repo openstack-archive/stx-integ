@@ -212,7 +212,7 @@ def _raise_alarm(ip=None):
 #
 # Returns    : Error indication.
 #
-#              True : is error. FM call failed to clear the
+#              True : is error. FM call failed to get or clear the
 #                     alarm and needs to be retried.
 #
 #              False: no error. FM call succeeds
@@ -222,6 +222,15 @@ def _raise_alarm(ip=None):
 def _clear_base_alarm():
     """ Clear the NTP base alarm """
 
+    resp, alarm = api.get_fault(PLUGIN_ALARMID, obj.base_eid)
+    if resp is False:
+        # Fail to get alarm, need retry.
+        collectd.error("%s failed to get alarm %s:%s" %
+                       (PLUGIN, PLUGIN_ALARMID, obj.base_eid))
+        return True
+    if alarm is None:
+        # There is no alarm.
+        return False
     if api.clear_fault(PLUGIN_ALARMID, obj.base_eid) is False:
         collectd.error("%s failed to clear alarm %s:%s" %
                        (PLUGIN, PLUGIN_ALARMID, obj.base_eid))
@@ -245,7 +254,7 @@ def _clear_base_alarm():
 #
 # Returns     : Error indication.
 #
-#               True : is error. FM call failed to clear the
+#               True : is error. FM call failed to get or clear the
 #                      alarm and needs to be retried.
 #
 #               False: no error. FM call succeeds
@@ -263,6 +272,15 @@ def _remove_ip_from_unreachable_list(ip):
         eid = obj.base_eid + '=' + ip
         collectd.debug("%s trying to clear alarm %s" % (PLUGIN, eid))
 
+        resp, alarm = api.get_fault(PLUGIN_ALARMID, eid)
+        if resp is False:
+            # Fail to get alarm, need retry.
+            collectd.error("%s failed to get alarm %s:%s" %
+                           (PLUGIN, PLUGIN_ALARMID, eid))
+            return True
+        if alarm is None:
+            # There is no alarm.
+            return False
         # clear the alarm if its asserted
         if api.clear_fault(PLUGIN_ALARMID, eid) is True:
             collectd.info("%s cleared %s:%s alarm" %

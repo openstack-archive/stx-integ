@@ -865,7 +865,7 @@ class Monitor(HandleUpgradesMixin):
 
     def _get_current_alarms(self):
         """ Retrieve currently raised alarm """
-        self.current_health_alarm = self.service.fm_api.get_fault(
+        resp, self.current_health_alarm = self.service.fm_api.get_fault(
             fm_constants.FM_ALARM_ID_STORAGE_CEPH,
             self.service.entity_instance_id)
         quota_faults = self.service.fm_api.get_faults_by_id(
