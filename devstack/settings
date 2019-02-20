@@ -1,6 +1,9 @@
 #!/bin/bash
 # Devstack settings
 
+# Services
+# platform-util
+
 # Defaults
 # --------
 
@@ -9,7 +12,10 @@ STX_INTEG_NAME=stx-integ
 ######### Plugin Specific ##########
 enable_service $STX_INTEG_NAME
 
-#platform_license
+# This must not use any variables to work properly in OpenStack's DevStack playbook
+define_plugin stx-integ
+# This works for Zuul jobs using OpenStack's DevStack roles
+#plugin_requires stx-integ stx-xxxx
 
 # Initial source of lib script
 source $DEST/stx-integ/devstack/lib/stx-integ
