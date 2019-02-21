@@ -159,16 +159,18 @@ if [ $? -ne 0 ]; then
 fi
 
 temp_dir=$PWD
+cp centos/ceph-preparation $SRC_DIR/
 cd $SRC_DIR
 
 echo "ceph customization build_srpm : execute ceph internal script to finish preparatory works"
 ./ceph-preparation $VERSION
 if [ $? -ne 0 ]; then
     echo "ERROR: ceph customization build_srpm : execute ceph internal script fails."
+    rm ceph-preparation
     exit 1
 fi
+rm ceph-preparation
 echo "ceph customization build_srpm : execute ceph internal script to finish preparatory...done"
-
 
 cd $temp_dir
 

@@ -1,0 +1,98 @@
+#!/bin/sh -e
+
+# chec .git file
+if [ ! -d .git ]; then
+    echo "no .git present.  run this from the base dir of the git checkout."
+    exit 1
+fi
+
+version=$1
+[ -z "$version" ] && version=`git describe --match 'v*' | sed 's/^v//'`
+outfile="ceph-$version"
+
+echo "version $version"
+
+# switch submodule to specific commit id
+echo "updating submodules..."
+force=$(if git submodule usage 2>&1 | grep --quiet 'update.*--force'; then echo --force ; fi)
+if ! git submodule update $force --init --recursive; then
+    echo "Error: could not initialize submodule projects"
+    echo "  Network connectivity might be required."
+    exit 1
+fi
+
+# boost preparatory work
+prepare_boost() {
+    boost_version=$1
+    shift
+    boost_sha256=$1
+    shift
+    boost_version_underscore=$(echo $boost_version | sed 's/\./_/g')
+    boost_fname=boost_${boost_version_underscore}.tar.bz2
+
+    # check boost
+    if [ ! -f $boost_fname ]; then
+        echo "Error: failed to find $boost_fname"
+        exit 1
+    fi
+
+    # check SHA256
+    if [ $(sha256sum $boost_fname | awk '{print $1}') != $boost_sha256 ]; then
+        echo "Error: failed to check boost: SHA256 mismatch."
+        exit 1
+    fi
+
+    # decompress boost
+    tar xjf $boost_fname -C src \
+        --exclude="$boost_version_underscore/libs/*/doc" \
+        --exclude="$boost_version_underscore/libs/*/example" \
+        --exclude="$boost_version_underscore/libs/*/examples" \
+        --exclude="$boost_version_underscore/libs/*/meta" \
+        --exclude="$boost_version_underscore/libs/*/test" \
+        --exclude="$boost_version_underscore/tools/boostbook" \
+        --exclude="$boost_version_underscore/tools/quickbook" \
+        --exclude="$boost_version_underscore/tools/auto_index" \
+        --exclude='doc' --exclude='more' --exclude='status'
+
+    # rename boost
+    if [ ! -d "src/boost" ]; then
+        mv src/boost_${boost_version_underscore} src/boost
+    fi
+}
+
+# clean out old cruft...
+echo "cleanup..."
+rm -f $outfile*
+
+# populate files with version strings
+echo "including src/.git_version, ceph.spec"
+
+# create .gitversion file
+(git rev-parse HEAD ; echo "v${version}") 2> /dev/null > src/.git_version
+
+# if the version has '-' in it, it has a 'release' part,
+# like vX.Y.Z-N-g<shortsha1>.  If it doesn't, it's just
+# vX.Y.Z.  Handle both, and translate - to . for rpm
+# naming rules (the - separates version and release).
+if expr index $version '-' > /dev/null; then
+	rpm_version=`echo $version | cut -d - -f 1-1`
+	rpm_release=`echo $version | cut -d - -f 2- | sed 's/-/./'`
+else
+	rpm_version=$version
+	rpm_release=0
+fi
+
+# starlingx use customization ceph.spec file.
+# don't need to generate general spec file.
+for spec in alpine/APKBUILD.in; do
+    cat $spec |
+        sed "s/@VERSION@/$rpm_version/g" |
+        sed "s/@RPM_RELEASE@/$rpm_release/g" |
+        sed "s/@TARBALL_BASENAME@/ceph-$version/g" > `echo $spec | sed 's/.in$//'`
+done
+ln -s . $outfile
+
+boost_version=1.67.0
+prepare_boost $boost_version 2684c972994ee57fc5632e03bf044746f6eb45d4920c343937a465fd67a5adba
+
+echo "ceph-preparation done."
