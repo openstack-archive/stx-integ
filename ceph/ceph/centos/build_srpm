@@ -152,10 +152,12 @@ if [ ! -f "$BOOST_TAR" ]; then
 fi
 
 echo "ceph customization build_srpm : copy boost tar file from $BOOST_TAR to $SRC_DIR"
-cp $BOOST_TAR $SRC_DIR
-if [ $? -ne 0 ]; then
-    echo "ERROR: ceph customization build_srpm : copy $BOOST_TAR fails."
-    exit 1
+if [ ! -f "$SRC_DIR/$BOOST_TAR_FILE" ]; then
+    cp $BOOST_TAR $SRC_DIR
+    if [ $? -ne 0 ]; then
+        echo "ERROR: ceph customization build_srpm : copy $BOOST_TAR fails."
+        exit 1
+    fi
 fi
 
 temp_dir=$PWD
