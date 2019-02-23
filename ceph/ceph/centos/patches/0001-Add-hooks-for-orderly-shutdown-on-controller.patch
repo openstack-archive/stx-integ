@@ -1,0 +1,56 @@
+From 8d28d6182d889231f1c4a6db5e8f9b8444460b87 Mon Sep 17 00:00:00 2001
+From: Changcheng Liu <changcheng.liu@intel.com>
+Date: Sat, 23 Feb 2019 14:32:12 +0800
+Subject: [PATCH] Add hooks for orderly shutdown on controller
+
+Hook the ceph init script to add systemd overrides to define
+an orderly shutdown for StarlingX controllers.
+
+Signed-off-by: Don Penney <don.penney@windriver.com>
+
+diff --git a/src/init-ceph.in b/src/init-ceph.in
+index 527830233b..0a5976ac1d 100755
+--- a/src/init-ceph.in
++++ b/src/init-ceph.in
+@@ -832,6 +832,38 @@ for name in $what; do
+ 		continue
+ 	    fi
+ 
++	    . /etc/platform/platform.conf
++	    if [ "${nodetype}" = "controller" ]; then
++		# StarlingX: Hook the transient services launched by systemd-run
++		# to allow for proper cleanup and orderly shutdown
++
++		# Set nullglob so wildcards will return empty string if no match
++		shopt -s nullglob
++
++		OSD_SERVICES=$(for svc in /run/systemd/system/ceph-osd*.service; do basename $svc; done | xargs echo)
++	    for d in /run/systemd/system/ceph-osd*.d; do
++	        cat <<EOF > $d/starlingx-overrides.conf
++[Unit]
++Before=docker.service
++After=sm-shutdown.service
++
++EOF
++	    done
++
++	    for d in /run/systemd/system/ceph-mon*.d; do
++	        cat <<EOF > $d/starlingx-overrides.conf
++[Unit]
++Before=docker.service
++After=sm-shutdown.service ${OSD_SERVICES}
++
++EOF
++	    done
++
++		shopt -u nullglob
++		systemctl daemon-reload
++
++	    fi
++
+ 	    [ -n "$post_start" ] && do_cmd "$post_start"
+ 	    [ -n "$lockfile" ] && [ "$?" -eq 0 ] && touch $lockfile
+ 	    ;;
+-- 
+2.17.1
+
