@@ -1,0 +1,445 @@
+
+/localdisk/designer/wrsroot/starlingx-0/cgcs-root/stx/stx-integ/ceph/python-cephclient/python-cephclient/setup.py,632
+    name='python-cephclient',name10,149
+    packages=['cephclient'],packages11,179
+    version='13.2.2.0',version12,208
+    url='https://github.com/openstack/stx-integ/tree/master/ceph/python-cephclient/python-cephclient',  # noqa E501url13,232
+    author='Daniel Badea',author14,348
+    authoer_email='daniel.badea@windriver.com',authoer_email15,375
+    description=(description16,423
+    license='Apache-2.0',license23,822
+    keywords='ceph rest api ceph-rest-api client library',keywords24,848
+    install_requires=['ipaddress', 'requests', 'six'],install_requires25,907
+    classifiers=[classifiers26,962
+
+/localdisk/designer/wrsroot/starlingx-0/cgcs-root/stx/stx-integ/ceph/python-cephclient/python-cephclient/cephclient/__init__.py,0
+
+/localdisk/designer/wrsroot/starlingx-0/cgcs-root/stx/stx-integ/ceph/python-cephclient/python-cephclient/cephclient/tests/__init__.py,0
+
+/localdisk/designer/wrsroot/starlingx-0/cgcs-root/stx/stx-integ/ceph/python-cephclient/python-cephclient/cephclient/exception.py,3227
+class CephClientException(Exception):CephClientException8,92
+    message = "generic ceph client exception"message9,130
+    def __init__(self, *args, **kwargs):__init__11,177
+class CephMonRestfulListKeysError(CephClientException):CephMonRestfulListKeysError23,596
+    message = "Failed to get ceph-mgr restful plugin keys. {}"message24,652
+class CephMonRestfulJsonError(CephClientException):CephMonRestfulJsonError27,717
+    message = "Failed to decode ceph-mgr restful plugin JSON response: {}"message28,769
+class CephMonRestfulMissingUserCredentials(CephClientException):CephMonRestfulMissingUserCredentials31,846
+    message = "Failed to get ceph-mgr restful plugin credentials for user: {}"message32,911
+class CephMgrDumpError(CephClientException):CephMgrDumpError35,992
+    message = "Failed to get ceph manager info. {}"message36,1037
+class CephMgrJsonError(CephClientException):CephMgrJsonError39,1091
+    message = "Failed to decode ceph manager JSON response: {}"message40,1136
+class CephMgrMissingRestfulService(CephClientException):CephMgrMissingRestfulService43,1202
+    message = "Missing restful service. Available services: {}"message44,1259
+class CephClientFormatNotSupported(CephClientException):CephClientFormatNotSupported47,1325
+    message = "Command '{prefix}' does not support request format '{format}'"message48,1382
+class CephClientResponseFormatNotImplemented(CephClientException):CephClientResponseFormatNotImplemented51,1462
+    message = ("Can't decode response. Support for '{format}' format "message52,1529
+class CephClientFunctionNotImplemented(CephClientException):CephClientFunctionNotImplemented56,1659
+    message = ("Function not implemented: {}")message57,1720
+class CephClientInvalidChoice(CephClientException):CephClientInvalidChoice60,1769
+    message = ("Function '{function}' does not support option "message61,1821
+class CephClientTypeError(CephClientException):CephClientTypeError65,1959
+    message = ("Expecting option '{name}' of type {expected}. "message66,2007
+class CephClientValueOutOfBounds(CephClientException):CephClientValueOutOfBounds70,2112
+    message = ("Argument '{name}' should be within range: {min} .. {max} "message71,2167
+class CephClientInvalidPgid(CephClientException):CephClientInvalidPgid75,2293
+    message = ("Argument '{name}' is not a valid Ceph PG id. Expected "message76,2343
+class CephClientInvalidIPAddr(CephClientException):CephClientInvalidIPAddr81,2536
+    message = ("Argument '{name}' should be a valid IPv4 or IPv6 address. "message82,2588
+class CephClientInvalidOsdIdValue(CephClientException):CephClientInvalidOsdIdValue86,2713
+    message = ("Invalid OSD ID value '{osdid}'. Should start with 'osd.'")message87,2769
+class CephClientInvalidOsdIdType(CephClientException):CephClientInvalidOsdIdType90,2846
+    message = ("Invalid OSD ID type for '{osdid}'. "message91,2901
+class CephClientNoSuchUser(CephClientException):CephClientNoSuchUser95,3004
+    message = ("No such user '{user}'.")message96,3053
+class CephClientIncorrectPassword(CephClientException):CephClientIncorrectPassword99,3096
+    message = ("Incorrect password for user '{user}'.")message100,3152
+
+/localdisk/designer/wrsroot/starlingx-0/cgcs-root/stx/stx-integ/ceph/python-cephclient/python-cephclient/cephclient/wrapper.py,2139
+class CephWrapper(CephClient):CephWrapper15,330
+    def __init__(self, endpoint=''):__init__17,362
+    def auth_import(self, file, body='json'):auth_import20,444
+    def osd_create(self, uuid, body='json', timeout=None, params=None):osd_create23,553
+    def osd_rm(self, ids, body='json', timeout=None):osd_rm50,1651
+    def osd_remove(self, ids, body='json', timeout=None):osd_remove83,2971
+    OSD_CRUSH_TREE_CONVERTED_FIELDS = [OSD_CRUSH_TREE_CONVERTED_FIELDS86,3090
+    def _osd_crush_tree_convert_node(self, node):_osd_crush_tree_convert_node89,3197
+    def _osd_crush_tree_populate_tree(self, node, node_map):_osd_crush_tree_populate_tree93,3351
+    def osd_crush_tree(self, shadow=None, body='json', timeout=None):osd_crush_tree104,3757
+    def _osd_crush_rule_by_ruleset(self, ruleset, timeout=None):_osd_crush_rule_by_ruleset126,4575
+    def _osd_crush_ruleset_by_rule(self, rule, timeout=None):_osd_crush_ruleset_by_rule138,5020
+    def osd_pool_create(self, pool, pg_num, pgp_num=None, pool_type=None,osd_pool_create143,5219
+    def osd_get_pool_param(self, pool, var, body='json', timeout=None):osd_get_pool_param162,6014
+    def osd_pool_set(self, pool, var, val, force=None,osd_pool_set182,6859
+    def osd_set_pool_param(self, pool, var, val, force=None,osd_set_pool_param191,7183
+    def osd_get_pool_quota(self, pool, body='json', timeout=None):osd_get_pool_quota207,7785
+    def osd_set_pool_quota(self, pool, field, val, body='json', timeout=None):osd_set_pool_quota214,8029
+    def osd_pool_set_quota(self, pool, field, val,osd_pool_set_quota221,8297
+    def _auth_convert_caps(self, caps):_auth_convert_caps230,8619
+    def auth_add(self, entity, caps=None, body='json', timeout=None):auth_add244,9080
+    def auth_caps(self, entity, caps, body='json', timeout=None):auth_caps253,9466
+    def auth_get_or_create(self, entity, caps=None, body='json', timeout=None):auth_get_or_create261,9778
+    def auth_get_or_create_key(self, entity, caps=None,auth_get_or_create_key270,10176
+    def osd_set_key(self, key, sure=None, body='json', timeout=None):osd_set_key284,10774
+
+/localdisk/designer/wrsroot/starlingx-0/cgcs-root/stx/stx-integ/ceph/python-cephclient/python-cephclient/cephclient/client.py,30926
+CEPH_MON_RESTFUL_USER = 'admin'CEPH_MON_RESTFUL_USER34,971
+CEPH_MON_RESTFUL_SERVICE = 'restful'CEPH_MON_RESTFUL_SERVICE35,1003
+CEPH_CLIENT_RETRY_COUNT = 2CEPH_CLIENT_RETRY_COUNT36,1040
+CEPH_CLIENT_RETRY_TIMEOUT_SEC = 5CEPH_CLIENT_RETRY_TIMEOUT_SEC37,1068
+CEPH_CLI_TIMEOUT = 5CEPH_CLI_TIMEOUT38,1102
+API_SUPPORTED_RESPONSE_FORMATS = [API_SUPPORTED_RESPONSE_FORMATS39,1123
+LOG = logging.getLogger('ceph_client')LOG43,1197
+ch = logging.StreamHandler()ch45,1264
+class CephClient(object):CephClient52,1431
+    def __init__(self,__init__54,1458
+    def _refresh_session(self):_refresh_session69,2002
+    def _disable_certificate_checks(self):_disable_certificate_checks73,2136
+    def _get_password(self):_get_password78,2328
+    def _get_service_url(self):_get_service_url96,2977
+    def _make_text_result(self, prefix, result):_make_text_result115,3666
+    def _apply_json_result_workarounds(self, prefix, outb):_apply_json_result_workarounds129,4289
+    def _make_json_result(self, prefix, result):_make_json_result137,4621
+    def _request(self, prefix, *args, **kwargs):_request160,5637
+    def pg_stat(self, body='json', timeout=None):pg_stat231,8669
+    def pg_getmap(self, body='json', timeout=None):pg_getmap237,8849
+        [u'all', u'summary', u'sum', u'delta', u'pools',PG_DUMP_DUMPCONTENTS_VALUES244,9071
+    def pg_dump(self, dumpcontents=None, body='json', timeout=None):pg_dump247,9169
+    PG_DUMP_JSON_DUMPCONTENTS_VALUES = [PG_DUMP_JSON_DUMPCONTENTS_VALUES270,10196
+    def pg_dump_json(self, dumpcontents=None, body='json', timeout=None):pg_dump_json273,10301
+    def pg_dump_pools_json(self, body='json', timeout=None):pg_dump_pools_json296,11330
+    def pg_ls_by_pool(self, poolstr, states=None,pg_ls_by_pool303,11564
+    def pg_ls_by_primary(self, osd, pool=None,pg_ls_by_primary335,12817
+    def pg_ls_by_osd(self, osd, pool=None, states=None,pg_ls_by_osd382,14610
+    def pg_ls(self, pool=None, states=None, body='json', timeout=None):pg_ls429,16383
+        [u'inactive', u'unclean', u'stale', u'undersized',PG_DUMP_STUCK_STUCKOPS_VALUES461,17671
+    def pg_dump_stuck(self, stuckops=None, threshold=None,pg_dump_stuck464,17753
+        [u'unfound_objects_exist', u'degraded_pgs_exist']PG_DEBUG_DEBUGOP_VALUES496,19080
+    def pg_debug(self, debugop, body='json', timeout=None):pg_debug498,19139
+    def pg_scrub(self, pgid, body='json', timeout=None):pg_scrub519,19887
+    def pg_deep_scrub(self, pgid, body='json', timeout=None):pg_deep_scrub537,20483
+    def pg_repair(self, pgid, body='json', timeout=None):pg_repair555,21094
+    def pg_force_recovery(self, pgid, body='json', timeout=None):pg_force_recovery573,21693
+    def pg_force_backfill(self, pgid, body='json', timeout=None):pg_force_backfill593,22381
+    def pg_cancel_force_recovery(self, pgid, body='json', timeout=None):pg_cancel_force_recovery613,23069
+    def pg_cancel_force_backfill(self, pgid, body='json', timeout=None):pg_cancel_force_backfill633,23783
+    def osd_perf(self, body='json', timeout=None):osd_perf653,24497
+    OSD_DF_OUTPUT_METHOD_VALUES = [u'plain', u'tree']OSD_DF_OUTPUT_METHOD_VALUES659,24687
+    def osd_df(self, output_method=None, body='json', timeout=None):osd_df661,24742
+    def osd_blocked_by(self, body='json', timeout=None):osd_blocked_by682,25631
+    def osd_pool_stats(self, pool_name=None, body='json', timeout=None):osd_pool_stats688,25851
+    OSD_REWEIGHT_BY_UTILIZATION_NO_INCREASING_VALUES = [u'--no-increasing']OSD_REWEIGHT_BY_UTILIZATION_NO_INCREASING_VALUES702,26426
+    def osd_reweight_by_utilization(osd_reweight_by_utilization704,26503
+    OSD_TEST_REWEIGHT_BY_UTILIZATION_NO_INCREASING_VALUES = [OSD_TEST_REWEIGHT_BY_UTILIZATION_NO_INCREASING_VALUES749,28506
+    def osd_test_reweight_by_utilization(osd_test_reweight_by_utilization752,28597
+    def osd_reweight_by_pg(osd_reweight_by_pg797,30632
+    def osd_test_reweight_by_pg(osd_test_reweight_by_pg845,32620
+    def osd_safe_to_destroy(self, ids, body='json', timeout=None):osd_safe_to_destroy893,34629
+    def osd_ok_to_stop(self, ids, body='json', timeout=None):osd_ok_to_stop918,35540
+    def osd_scrub(self, who, body='json', timeout=None):osd_scrub943,36451
+    def osd_deep_scrub(self, who, body='json', timeout=None):osd_deep_scrub957,36925
+    def osd_repair(self, who, body='json', timeout=None):osd_repair971,37419
+    def service_dump(self, body='json', timeout=None):service_dump985,37897
+    def service_status(self, body='json', timeout=None):service_status991,38075
+    def config_show(self, who, key, body='json', timeout=None):config_show997,38259
+    def config_show_with_defaults(self, who, body='json', timeout=None):config_show_with_defaults1018,38933
+    def pg_map(self, pgid, body='json', timeout=None):pg_map1032,39440
+    def osd_last_stat_seq(self, _id, body='json', timeout=None):osd_last_stat_seq1050,40037
+    def auth_export(self, entity=None, body='json', timeout=None):auth_export1072,40805
+    def auth_get(self, entity, body='json', timeout=None):auth_get1086,41369
+    def auth_get_key(self, entity, body='json', timeout=None):auth_get_key1100,41838
+    def auth_print_key(self, entity, body='json', timeout=None):auth_print_key1114,42299
+    def auth_list(self, body='json', timeout=None):auth_list1128,42764
+    def auth_ls(self, body='json', timeout=None):auth_ls1134,42945
+    def auth_import(self, body='json', timeout=None):auth_import1140,43122
+    def auth_add(self, entity, caps=None, body='json', timeout=None):auth_add1146,43327
+    def auth_get_or_create_key(auth_get_or_create_key1178,44614
+    def auth_get_or_create(self, entity, caps=None,auth_get_or_create1212,45988
+    def fs_authorize(self, filesystem, entity, caps,fs_authorize1245,47319
+    def auth_caps(self, entity, caps, body='json', timeout=None):auth_caps1285,48795
+    def auth_del(self, entity, body='json', timeout=None):auth_del1316,49916
+    def auth_rm(self, entity, body='json', timeout=None):auth_rm1330,50374
+    def compact(self, body='json', timeout=None):compact1344,50830
+    def scrub(self, body='json', timeout=None):scrub1350,51035
+    def fsid(self, body='json', timeout=None):fsid1356,51207
+    def log(self, logtext, body='json', timeout=None):log1362,51375
+    LOG_LAST_LEVEL_VALUES = [u'debug', u'info', u'sec', u'warn', u'error']LOG_LAST_LEVEL_VALUES1386,52253
+    LOG_LAST_CHANNEL_VALUES = [u'*', u'cluster', u'audit']LOG_LAST_CHANNEL_VALUES1388,52329
+    def log_last(log_last1390,52389
+    def injectargs(self, injected_args, body='json', timeout=None):injectargs1440,54341
+    def status(self, body='json', timeout=None):status1464,55305
+    HEALTH_DETAIL_VALUES = [u'detail']HEALTH_DETAIL_VALUES1470,55474
+    def health(self, detail=None, body='json', timeout=None):health1472,55514
+    def time_sync_status(self, body='json', timeout=None):time_sync_status1493,56325
+    DF_DETAIL_VALUES = [u'detail']DF_DETAIL_VALUES1500,56545
+    def df(self, detail=None, body='json', timeout=None):df1502,56581
+    def report(self, tags=None, body='json', timeout=None):report1523,57386
+    def features(self, body='json', timeout=None):features1547,58352
+    def quorum_status(self, body='json', timeout=None):quorum_status1553,58534
+    def mon_status(self, body='json', timeout=None):mon_status1559,58729
+    SYNC_FORCE_VALIDATE1_VALUES = [u'--yes-i-really-mean-it']SYNC_FORCE_VALIDATE1_VALUES1565,58912
+    SYNC_FORCE_VALIDATE2_VALUES = [u'--i-know-what-i-am-doing']SYNC_FORCE_VALIDATE2_VALUES1567,58975
+    def sync_force(sync_force1569,59040
+        [u'dump', u'start_profiler', u'stop_profiler',HEAP_HEAPCMD_VALUES1607,60622
+    def heap(self, heapcmd, body='json', timeout=None):heap1610,60709
+    QUORUM_QUORUMCMD_VALUES = [u'enter', u'exit']QUORUM_QUORUMCMD_VALUES1631,61479
+    def quorum(self, quorumcmd, body='json', timeout=None):quorum1633,61530
+    def tell(self, target, args, body='json', timeout=None):tell1654,62285
+    def version(self, body='json', timeout=None):version1680,63171
+    NODE_LS__TYPE_VALUES = [u'all', u'osd', u'mon', u'mds', u'mgr']NODE_LS__TYPE_VALUES1686,63346
+    def node_ls(self, _type=None, body='json', timeout=None):node_ls1688,63415
+    def mon_compact(self, body='json', timeout=None):mon_compact1709,64231
+    def mon_scrub(self, body='json', timeout=None):mon_scrub1715,64444
+    MON_SYNC_FORCE_VALIDATE1_VALUES = [u'--yes-i-really-mean-it']MON_SYNC_FORCE_VALIDATE1_VALUES1721,64624
+    MON_SYNC_FORCE_VALIDATE2_VALUES = [u'--i-know-what-i-am-doing']MON_SYNC_FORCE_VALIDATE2_VALUES1723,64691
+    def mon_sync_force(mon_sync_force1725,64760
+    def mon_metadata(self, _id=None, body='json', timeout=None):mon_metadata1762,66338
+    def mon_count_metadata(self, _property, body='json', timeout=None):mon_count_metadata1776,66842
+    def mon_versions(self, body='json', timeout=None):mon_versions1790,67348
+    def versions(self, body='json', timeout=None):versions1796,67544
+    def mds_stat(self, body='json', timeout=None):mds_stat1802,67736
+    def mds_dump(self, epoch=None, body='json', timeout=None):mds_dump1808,67905
+    def fs_dump(self, epoch=None, body='json', timeout=None):fs_dump1828,68636
+    def mds_getmap(self, epoch=None, body='json', timeout=None):mds_getmap1848,69359
+    def mds_metadata(self, who=None, body='json', timeout=None):mds_metadata1868,70077
+    def mds_count_metadata(self, _property, body='json', timeout=None):mds_count_metadata1882,70584
+    def mds_versions(self, body='json', timeout=None):mds_versions1896,71090
+    def mds_tell(self, who, args, body='json', timeout=None):mds_tell1902,71282
+    def mds_compat_show(self, body='json', timeout=None):mds_compat_show1933,72356
+    def mds_stop(self, role, body='json', timeout=None):mds_stop1939,72555
+    def mds_deactivate(self, role, body='json', timeout=None):mds_deactivate1953,72983
+    def mds_set_max_mds(self, maxmds, body='json', timeout=None):mds_set_max_mds1967,73485
+        [u'max_mds', u'max_file_size', u'inline_data',MDS_SET_VAR_VALUES1988,74150
+    def mds_set(self, var, val, confirm=None, body='json', timeout=None):mds_set1992,74307
+    def mds_set_state(self, gid, state, body='json', timeout=None):mds_set_state2027,75558
+    def mds_fail(self, role_or_gid, body='json', timeout=None):mds_fail2060,76606
+    def mds_repaired(self, role, body='json', timeout=None):mds_repaired2074,77129
+    def mds_rm(self, gid, body='json', timeout=None):mds_rm2088,77601
+    def mds_rmfailed(self, role, confirm=None, body='json', timeout=None):mds_rmfailed2108,78197
+    def mds_cluster_down(self, body='json', timeout=None):mds_cluster_down2129,78954
+    def mds_cluster_up(self, body='json', timeout=None):mds_cluster_up2136,79174
+    def mds_compat_rm_compat(self, feature, body='json', timeout=None):mds_compat_rm_compat2142,79360
+    def mds_compat_rm_incompat(self, feature, body='json', timeout=None):mds_compat_rm_incompat2162,80025
+    def mds_add_data_pool(self, pool, body='json', timeout=None):mds_add_data_pool2182,80696
+    def mds_rm_data_pool(self, pool, body='json', timeout=None):mds_rm_data_pool2196,81154
+    def mds_remove_data_pool(self, pool, body='json', timeout=None):mds_remove_data_pool2210,81613
+    MDS_NEWFS_SURE_VALUES = [u'--yes-i-really-mean-it']MDS_NEWFS_SURE_VALUES2224,82080
+    def mds_newfs(self, metadata, data, sure=None,mds_newfs2226,82137
+    FS_NEW_FORCE_VALUES = [u'--force']FS_NEW_FORCE_VALUES2274,83832
+    FS_NEW_SURE_VALUES = [u'--allow-dangerous-metadata-overlay']FS_NEW_SURE_VALUES2276,83872
+    def fs_new(self, fs_name, metadata, data, force=None,fs_new2278,83938
+    FS_RM_SURE_VALUES = [u'--yes-i-really-mean-it']FS_RM_SURE_VALUES2335,86125
+    def fs_rm(self, fs_name, sure=None, body='json', timeout=None):fs_rm2337,86178
+    FS_RESET_SURE_VALUES = [u'--yes-i-really-mean-it']FS_RESET_SURE_VALUES2365,87224
+    def fs_reset(self, fs_name, sure=None, body='json', timeout=None):fs_reset2367,87280
+    def fs_ls(self, body='json', timeout=None):fs_ls2395,88359
+    def fs_get(self, fs_name, body='json', timeout=None):fs_get2401,88523
+        [u'max_mds', u'max_file_size', u'allow_new_snaps',FS_SET_VAR_VALUES2416,89012
+    def fs_set(self, fs_name, var, val, confirm=None,fs_set2423,89293
+    FS_FLAG_SET_FLAG_NAME_VALUES = [u'enable_multiple']FS_FLAG_SET_FLAG_NAME_VALUES2466,90806
+    FS_FLAG_SET_CONFIRM_VALUES = [u'--yes-i-really-mean-it']FS_FLAG_SET_CONFIRM_VALUES2468,90863
+    def fs_flag_set(self, flag_name, val, confirm=None,fs_flag_set2470,90925
+    def fs_add_data_pool(self, fs_name, pool, body='json', timeout=None):fs_add_data_pool2513,92583
+    def fs_rm_data_pool(self, fs_name, pool, body='json', timeout=None):fs_rm_data_pool2534,93291
+    def fs_set_default(self, fs_name, body='json', timeout=None):fs_set_default2555,94000
+    def mon_dump(self, epoch=None, body='json', timeout=None):mon_dump2569,94489
+    def mon_stat(self, body='json', timeout=None):mon_stat2589,95214
+    def mon_getmap(self, epoch=None, body='json', timeout=None):mon_getmap2595,95392
+    def mon_add(self, name, addr, body='json', timeout=None):mon_add2615,96086
+    def mon_rm(self, name, body='json', timeout=None):mon_rm2637,96759
+    def mon_remove(self, name, body='json', timeout=None):mon_remove2651,97202
+    MON_FEATURE_LS_WITH_VALUE_VALUES = [u'--with-value']MON_FEATURE_LS_WITH_VALUE_VALUES2665,97653
+    def mon_feature_ls(self, with_value=None, body='json', timeout=None):mon_feature_ls2667,97711
+    MON_FEATURE_SET_SURE_VALUES = [u'--yes-i-really-mean-it']MON_FEATURE_SET_SURE_VALUES2688,98626
+    def mon_feature_set(self, feature_name, sure=None,mon_feature_set2690,98689
+    def osd_stat(self, body='json', timeout=None):osd_stat2719,99832
+    def osd_dump(self, epoch=None, body='json', timeout=None):osd_dump2725,100010
+    OSD_TREE_STATES_VALUES = [u'up', u'down', u'in', u'out', u'destroyed']OSD_TREE_STATES_VALUES2745,100714
+    def osd_tree(self, epoch=None, states=None, body='json', timeout=None):osd_tree2747,100790
+    OSD_TREE_FROM_STATES_VALUES = [OSD_TREE_FROM_STATES_VALUES2783,102177
+    def osd_tree_from(osd_tree_from2786,102267
+    def osd_ls(self, epoch=None, body='json', timeout=None):osd_ls2831,103955
+    def osd_getmap(self, epoch=None, body='json', timeout=None):osd_getmap2851,104647
+    def osd_getcrushmap(self, epoch=None, body='json', timeout=None):osd_getcrushmap2871,105342
+    def osd_getmaxosd(self, body='json', timeout=None):osd_getmaxosd2891,106049
+    def osd_ls_tree(self, name, epoch=None, body='json', timeout=None):osd_ls_tree2897,106232
+    def osd_find(self, _id, body='json', timeout=None):osd_find2924,107201
+    def osd_metadata(self, _id=None, body='json', timeout=None):osd_metadata2946,107944
+    def osd_count_metadata(self, _property, body='json', timeout=None):osd_count_metadata2968,108772
+    def osd_versions(self, body='json', timeout=None):osd_versions2982,109278
+    def osd_map(self, pool, _object, nspace=None,osd_map2988,109470
+    def osd_lspools(self, auid=None, body='json', timeout=None):osd_lspools3012,110301
+    def osd_crush_rule_list(self, body='json', timeout=None):osd_crush_rule_list3026,110782
+    def osd_crush_rule_ls(self, body='json', timeout=None):osd_crush_rule_ls3033,111003
+    def osd_crush_rule_ls_by_class(osd_crush_rule_ls_by_class3040,111220
+    def osd_crush_rule_dump(self, name=None, body='json', timeout=None):osd_crush_rule_dump3055,111752
+    def osd_crush_dump(self, body='json', timeout=None):osd_crush_dump3069,112287
+    def osd_crush_add_bucket(osd_crush_add_bucket3075,112467
+    def osd_crush_rename_bucket(osd_crush_rename_bucket3115,113981
+    def osd_crush_set(self, _id, weight, args, body='json', timeout=None):osd_crush_set3137,114750
+    def osd_crush_add(self, _id, weight, args, body='json', timeout=None):osd_crush_add3190,116602
+    def osd_crush_set_all_straw_buckets_to_straw2(osd_crush_set_all_straw_buckets_to_straw23243,118462
+    def osd_crush_set_device_class(osd_crush_set_device_class3252,118787
+    def osd_crush_rm_device_class(self, ids, body='json', timeout=None):osd_crush_rm_device_class3285,119966
+    def osd_crush_class_rename(osd_crush_class_rename3310,120885
+    def osd_crush_create_or_move(osd_crush_create_or_move3332,121664
+    def osd_crush_move(self, name, args, body='json', timeout=None):osd_crush_move3386,123549
+    OSD_CRUSH_SWAP_BUCKET_FORCE_VALUES = [u'--yes-i-really-mean-it']OSD_CRUSH_SWAP_BUCKET_FORCE_VALUES3417,124660
+    def osd_crush_swap_bucket(osd_crush_swap_bucket3419,124730
+    def osd_crush_link(self, name, args, body='json', timeout=None):osd_crush_link3456,126144
+    def osd_crush_rm(self, name, ancestor=None, body='json', timeout=None):osd_crush_rm3487,127258
+    def osd_crush_remove(self, name, ancestor=None,osd_crush_remove3508,128069
+    def osd_crush_unlink(self, name, ancestor=None,osd_crush_unlink3530,128913
+    def osd_crush_reweight_all(self, body='json', timeout=None):osd_crush_reweight_all3552,129757
+    def osd_crush_reweight(self, name, weight, body='json', timeout=None):osd_crush_reweight3559,130033
+    def osd_crush_reweight_subtree(osd_crush_reweight_subtree3586,130954
+        [u'legacy', u'argonaut', u'bobtail', u'firefly',OSD_CRUSH_TUNABLES_PROFILE_VALUES3615,131960
+    def osd_crush_tunables(self, profile, body='json', timeout=None):osd_crush_tunables3618,132072
+    OSD_CRUSH_SET_TUNABLE_TUNABLE_VALUES = [u'straw_calc_version']OSD_CRUSH_SET_TUNABLE_TUNABLE_VALUES3639,132873
+    def osd_crush_set_tunable(osd_crush_set_tunable3641,132941
+    OSD_CRUSH_GET_TUNABLE_TUNABLE_VALUES = [u'straw_calc_version']OSD_CRUSH_GET_TUNABLE_TUNABLE_VALUES3670,133995
+    def osd_crush_get_tunable(self, tunable, body='json', timeout=None):osd_crush_get_tunable3672,134063
+    def osd_crush_show_tunables(self, body='json', timeout=None):osd_crush_show_tunables3693,134865
+    OSD_CRUSH_RULE_CREATE_SIMPLE_MODE_VALUES = [u'firstn', u'indep']OSD_CRUSH_RULE_CREATE_SIMPLE_MODE_VALUES3700,135105
+    def osd_crush_rule_create_simple(osd_crush_rule_create_simple3702,135175
+    def osd_crush_rule_create_replicated(osd_crush_rule_create_replicated3747,136941
+    def osd_crush_rule_create_erasure(osd_crush_rule_create_erasure3786,138419
+    def osd_crush_rule_rm(self, name, body='json', timeout=None):osd_crush_rule_rm3809,139302
+    def osd_crush_rule_rename(osd_crush_rule_rename3823,139764
+    OSD_CRUSH_TREE_SHADOW_VALUES = [u'--show-shadow']OSD_CRUSH_TREE_SHADOW_VALUES3845,140533
+    def osd_crush_tree(self, shadow=None, body='json', timeout=None):osd_crush_tree3847,140588
+    def osd_crush_ls(self, node, body='json', timeout=None):osd_crush_ls3868,141455
+    def osd_crush_class_ls(self, body='json', timeout=None):osd_crush_class_ls3882,141926
+    def osd_crush_class_ls_osd(self, _class, body='json', timeout=None):osd_crush_class_ls_osd3889,142158
+    def osd_crush_weight_set_ls(self, body='json', timeout=None):osd_crush_weight_set_ls3903,142664
+    def osd_crush_weight_set_dump(self, body='json', timeout=None):osd_crush_weight_set_dump3910,142899
+    def osd_crush_weight_set_create_compat(osd_crush_weight_set_create_compat3917,143138
+    OSD_CRUSH_WEIGHT_SET_CREATE_MODE_VALUES = [u'flat', u'positional']OSD_CRUSH_WEIGHT_SET_CREATE_MODE_VALUES3926,143429
+    def osd_crush_weight_set_create(osd_crush_weight_set_create3928,143501
+    def osd_crush_weight_set_rm(self, pool, body='json', timeout=None):osd_crush_weight_set_rm3957,144553
+    def osd_crush_weight_set_rm_compat(self, body='json', timeout=None):osd_crush_weight_set_rm_compat3971,145041
+    def osd_crush_weight_set_reweight(osd_crush_weight_set_reweight3978,145293
+    def osd_crush_weight_set_reweight_compat(osd_crush_weight_set_reweight_compat4015,146568
+    def osd_setmaxosd(self, newmax, body='json', timeout=None):osd_setmaxosd4047,147659
+    def osd_set_full_ratio(self, ratio, body='json', timeout=None):osd_set_full_ratio4067,148301
+    def osd_set_backfillfull_ratio(self, ratio, body='json', timeout=None):osd_set_backfillfull_ratio4087,148984
+    def osd_set_nearfull_ratio(self, ratio, body='json', timeout=None):osd_set_nearfull_ratio4107,149699
+    def osd_get_require_min_compat_client(self, body='json', timeout=None):osd_get_require_min_compat_client4127,150395
+    OSD_SET_REQUIRE_MIN_COMPAT_CLIENT_SURE_VALUES = [OSD_SET_REQUIRE_MIN_COMPAT_CLIENT_SURE_VALUES4135,150690
+    def osd_set_require_min_compat_client(osd_set_require_min_compat_client4138,150780
+    def osd_pause(self, body='json', timeout=None):osd_pause4167,152002
+    def osd_unpause(self, body='json', timeout=None):osd_unpause4173,152167
+    def osd_erasure_code_profile_set(osd_erasure_code_profile_set4179,152338
+    def osd_erasure_code_profile_get(osd_erasure_code_profile_get4212,153725
+    def osd_erasure_code_profile_rm(self, name, body='json', timeout=None):osd_erasure_code_profile_rm4227,154229
+    def osd_erasure_code_profile_ls(self, body='json', timeout=None):osd_erasure_code_profile_ls4241,154721
+        [u'full', u'pause', u'noup', u'nodown', u'noout',OSD_SET_KEY_VALUES4249,154983
+    OSD_SET_SURE_VALUES = [u'--yes-i-really-mean-it']OSD_SET_SURE_VALUES4256,155285
+    def osd_set(self, key, sure=None, body='json', timeout=None):osd_set4258,155340
+        [u'full', u'pause', u'noup', u'nodown', u'noout',OSD_UNSET_KEY_VALUES4294,156647
+    def osd_unset(self, key, body='json', timeout=None):osd_unset4299,156847
+    OSD_REQUIRE_OSD_RELEASE_RELEASE_VALUES = [u'luminous', u'mimic']OSD_REQUIRE_OSD_RELEASE_RELEASE_VALUES4320,157545
+    OSD_REQUIRE_OSD_RELEASE_SURE_VALUES = [u'--yes-i-really-mean-it']OSD_REQUIRE_OSD_RELEASE_SURE_VALUES4322,157615
+    def osd_require_osd_release(osd_require_osd_release4324,157686
+    def osd_down(self, ids, body='json', timeout=None):osd_down4360,159169
+    def osd_out(self, ids, body='json', timeout=None):osd_out4384,160042
+    def osd_in(self, ids, body='json', timeout=None):osd_in4408,160911
+    def osd_rm(self, ids, body='json', timeout=None):osd_rm4433,161814
+    def osd_add_noup(self, ids, body='json', timeout=None):osd_add_noup4457,162679
+    def osd_add_nodown(self, ids, body='json', timeout=None):osd_add_nodown4482,163576
+    def osd_add_noin(self, ids, body='json', timeout=None):osd_add_noin4507,164481
+    def osd_add_noout(self, ids, body='json', timeout=None):osd_add_noout4532,165378
+    def osd_rm_noup(self, ids, body='json', timeout=None):osd_rm_noup4557,166279
+    def osd_rm_nodown(self, ids, body='json', timeout=None):osd_rm_nodown4583,167248
+    def osd_rm_noin(self, ids, body='json', timeout=None):osd_rm_noin4609,168227
+    def osd_rm_noout(self, ids, body='json', timeout=None):osd_rm_noout4635,169196
+    def osd_reweight(self, _id, weight, body='json', timeout=None):osd_reweight4661,170170
+    def osd_reweightn(self, weights, body='json', timeout=None):osd_reweightn4696,171347
+    OSD_FORCE_CREATE_PG_SURE_VALUES = [u'--yes-i-really-mean-it']OSD_FORCE_CREATE_PG_SURE_VALUES4710,171835
+    def osd_force_create_pg(self, pgid, sure=None,osd_force_create_pg4712,171902
+    def osd_pg_temp(self, pgid, _id=None, body='json', timeout=None):osd_pg_temp4745,173168
+    def osd_pg_upmap(self, pgid, _id, body='json', timeout=None):osd_pg_upmap4780,174471
+    def osd_rm_pg_upmap(self, pgid, body='json', timeout=None):osd_rm_pg_upmap4815,175683
+    def osd_pg_upmap_items(self, pgid, _id, body='json', timeout=None):osd_pg_upmap_items4833,176323
+    def osd_rm_pg_upmap_items(self, pgid, body='json', timeout=None):osd_rm_pg_upmap_items4869,177566
+    def osd_primary_temp(self, pgid, _id, body='json', timeout=None):osd_primary_temp4887,178224
+    def osd_primary_affinity(self, _id, weight, body='json', timeout=None):osd_primary_affinity4920,179375
+    OSD_DESTROY_SURE_VALUES = [u'--yes-i-really-mean-it']OSD_DESTROY_SURE_VALUES4955,180587
+    def osd_destroy(self, _id, sure=None, body='json', timeout=None):osd_destroy4957,180646
+    OSD_PURGE_NEW_SURE_VALUES = [u'--yes-i-really-mean-it']OSD_PURGE_NEW_SURE_VALUES4995,182120
+    def osd_purge_new(self, _id, sure=None, body='json', timeout=None):osd_purge_new4997,182181
+    OSD_PURGE_SURE_VALUES = [u'--yes-i-really-mean-it']OSD_PURGE_SURE_VALUES5034,183563
+    def osd_purge(self, _id, sure=None, body='json', timeout=None):osd_purge5036,183620
+    OSD_LOST_SURE_VALUES = [u'--yes-i-really-mean-it']OSD_LOST_SURE_VALUES5073,185006
+    def osd_lost(self, _id, sure=None, body='json', timeout=None):osd_lost5075,185062
+    def osd_create(self, uuid=None, _id=None, body='json', timeout=None):osd_create5112,186439
+    def osd_new(self, uuid, _id=None, body='json', timeout=None):osd_new5137,187339
+    OSD_BLACKLIST_BLACKLISTOP_VALUES = [u'add', u'rm']OSD_BLACKLIST_BLACKLISTOP_VALUES5163,188335
+    def osd_blacklist(osd_blacklist5165,188391
+    def osd_blacklist_ls(self, body='json', timeout=None):osd_blacklist_ls5204,189841
+    def osd_blacklist_clear(self, body='json', timeout=None):osd_blacklist_clear5211,190064
+    def osd_pool_mksnap(self, pool, snap, body='json', timeout=None):osd_pool_mksnap5218,190298
+    def osd_pool_rmsnap(self, pool, snap, body='json', timeout=None):osd_pool_rmsnap5239,190996
+    OSD_POOL_LS_DETAIL_VALUES = [u'detail']OSD_POOL_LS_DETAIL_VALUES5260,191698
+    def osd_pool_ls(self, detail=None, body='json', timeout=None):osd_pool_ls5262,191743
+    OSD_POOL_CREATE_POOL_TYPE_VALUES = [u'replicated', u'erasure']OSD_POOL_CREATE_POOL_TYPE_VALUES5283,192565
+    def osd_pool_create(osd_pool_create5285,192633
+    def osd_pool_delete(self, pool, pool2=None,osd_pool_delete5363,195796
+    def osd_pool_rm(self, pool, pool2=None, sure=None,osd_pool_rm5392,196854
+    def osd_pool_rename(self, srcpool, destpool,osd_pool_rename5421,197900
+        [u'size', u'min_size', u'pg_num', u'pgp_num',OSD_POOL_GET_VAR_VALUES5444,198696
+    def osd_pool_get(self, pool, var, body='json', timeout=None):osd_pool_get5471,199907
+        [u'size', u'min_size', u'pg_num', u'pgp_num',OSD_POOL_SET_VAR_VALUES5500,200896
+    OSD_POOL_SET_FORCE_VALUES = [u'--yes-i-really-mean-it']OSD_POOL_SET_FORCE_VALUES5526,202065
+    def osd_pool_set(self, pool, var, val, force=None,osd_pool_set5528,202126
+    OSD_POOL_SET_QUOTA_FIELD_VALUES = [u'max_objects', u'max_bytes']OSD_POOL_SET_QUOTA_FIELD_VALUES5578,203952
+    def osd_pool_set_quota(self, pool, field, val,osd_pool_set_quota5580,204022
+    def osd_pool_get_quota(self, pool, body='json', timeout=None):osd_pool_get_quota5616,205286
+    OSD_POOL_APPLICATION_ENABLE_FORCE_VALUES = [u'--yes-i-really-mean-it']OSD_POOL_APPLICATION_ENABLE_FORCE_VALUES5630,205763
+    def osd_pool_application_enable(osd_pool_application_enable5632,205839
+    OSD_POOL_APPLICATION_DISABLE_FORCE_VALUES = [u'--yes-i-really-mean-it']OSD_POOL_APPLICATION_DISABLE_FORCE_VALUES5668,207249
+    def osd_pool_application_disable(osd_pool_application_disable5670,207326
+    def osd_pool_application_set(osd_pool_application_set5706,208725
+    def osd_pool_application_rm(osd_pool_application_rm5743,209965
+    def osd_pool_application_get(osd_pool_application_get5772,210947
+    def osd_utilization(self, body='json', timeout=None):osd_utilization5801,212042
+    OSD_TIER_ADD_FORCE_NONEMPTY_VALUES = [u'--force-nonempty']OSD_TIER_ADD_FORCE_NONEMPTY_VALUES5807,212241
+    def osd_tier_add(osd_tier_add5809,212305
+    def osd_tier_rm(self, pool, tierpool, body='json', timeout=None):osd_tier_rm5847,213810
+    def osd_tier_remove(self, pool, tierpool, body='json', timeout=None):osd_tier_remove5869,214583
+        [u'none', u'writeback', u'forward', u'readonly',OSD_TIER_CACHE_MODE_MODE_VALUES5892,215404
+    OSD_TIER_CACHE_MODE_SURE_VALUES = [u'--yes-i-really-mean-it']OSD_TIER_CACHE_MODE_SURE_VALUES5895,215511
+    def osd_tier_cache_mode(osd_tier_cache_mode5897,215578
+    def osd_tier_set_overlay(osd_tier_set_overlay5940,217222
+    def osd_tier_rm_overlay(self, pool, body='json', timeout=None):osd_tier_rm_overlay5962,218016
+    def osd_tier_remove_overlay(self, pool, body='json', timeout=None):osd_tier_remove_overlay5976,218502
+    def osd_tier_add_cache(self, pool, tierpool, size,osd_tier_add_cache5990,218996
+    def config_key_get(self, key, body='json', timeout=None):config_key_get6026,220226
+    def config_key_set(self, key, val=None, body='json', timeout=None):config_key_set6040,220661
+    def config_key_put(self, key, val=None, body='json', timeout=None):config_key_put6061,221395
+    def config_key_del(self, key, body='json', timeout=None):config_key_del6082,222127
+    def config_key_rm(self, key, body='json', timeout=None):config_key_rm6096,222565
+    def config_key_exists(self, key, body='json', timeout=None):config_key_exists6110,222997
+    def config_key_list(self, body='json', timeout=None):config_key_list6124,223456
+    def config_key_ls(self, body='json', timeout=None):config_key_ls6130,223633
+    def config_key_dump(self, key=None, body='json', timeout=None):config_key_dump6136,223806
+    def mgr_dump(self, epoch=None, body='json', timeout=None):mgr_dump6150,224333
+    def mgr_fail(self, who, body='json', timeout=None):mgr_fail6170,225035
+    def mgr_module_ls(self, body='json', timeout=None):mgr_module_ls6184,225489
+    def mgr_services(self, body='json', timeout=None):mgr_services6190,225676
+    MGR_MODULE_ENABLE_FORCE_VALUES = [u'--force']MGR_MODULE_ENABLE_FORCE_VALUES6196,225884
+    def mgr_module_enable(self, module, force=None,mgr_module_enable6198,225935
+    def mgr_module_disable(self, module, body='json', timeout=None):mgr_module_disable6227,227049
+    def mgr_metadata(self, who=None, body='json', timeout=None):mgr_metadata6241,227519
+    def mgr_count_metadata(self, _property, body='json', timeout=None):mgr_count_metadata6255,228047
+    def mgr_versions(self, body='json', timeout=None):mgr_versions6269,228565
+    def config_set(self, who, name, value, body='json', timeout=None):config_set6275,228769
+    def config_rm(self, who, name, body='json', timeout=None):config_rm6303,229712
+    def config_get(self, who, key, body='json', timeout=None):config_get6324,230415
+    def config_dump(self, body='json', timeout=None):config_dump6345,231103
+    def config_help(self, key, body='json', timeout=None):config_help6351,231295
+    def config_assimilate_conf(self, body='json', timeout=None):config_assimilate_conf6365,231746
+    def config_log(self, num, body='json', timeout=None):config_log6372,232024
+    def config_reset(self, num, body='json', timeout=None):config_reset6386,232467
