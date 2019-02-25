@@ -65,8 +65,10 @@ class Config(object):
     def load():
         return Config()
 
+
 CONFIG = Config.load()
 LOG = None
+
 
 def setup_logging(name=None, cleanup_handlers=False):
     global LOG
@@ -228,9 +230,9 @@ class ServiceMonitor(object):
         self.skip_ticks = 0
 
     def step_monitor(self):
-        # LOG.info('monitor service tick. '
-        #          'state={}, skip_ticks={}'.format(
-        #              self.state, self.skip_ticks))
+        LOG.debug('monitor service tick. '
+                  'state={}, skip_ticks={}'.format(
+                      self.state, self.skip_ticks))
         if not self.state:
             return
         if self.skip_ticks:
@@ -552,7 +554,6 @@ class ServiceMonitor(object):
         sock.connect(CONFIG.service_socket)
         return sock
 
-
     @staticmethod
     def request_status():
         try:
@@ -664,6 +665,7 @@ class InitWrapper(object):
 def main():
     setup_logging(name='init-wrapper')
     InitWrapper().run()
+
 
 if __name__ == '__main__':
     main()
