@@ -1,0 +1,93 @@
+#
+# Copyright (c) 2019 StarlingX.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# vim: tabstop=4 shiftwidth=4 softtabstop=4
+
+# All Rights Reserved.
+#
+
+""" Define pci_irq_affinity_provider class"""
+
+import utils as pci_utils
+from driver import AffinePciIrqDriver
+from nova_provider import NovaProvider
+from Log import LOG
+
+class pci_irq_affinity_provider:
+    def __init__(self):
+        self.affinePciIrqDriver = AffinePciIrqDriver()
+        self.inst_dict = {}
+
+    def reset_irq_affinity(self, uuid, irqs=set(), msi_irqs=set()):
+        """
+        Reset irq affinity for instance that has already been deleted or
+        related PCI not used by it anymore.
+        """
+        if (len(irqs) + len(msi_irqs)) > 0:
+            # reset irq affinity for specified irqs
+            _irqs = irqs
+            _msi_irqs = msi_irqs
+
+        elif uuid in self.inst_dict:
+            # reset all irq affinity for deleted instance
+            _irqs = self.inst_dict[uuid][0]
+            _msi_irqs = self.inst_dict[uuid][1]
+        else:
+           LOG.info("No pci affinity need to be reset!")
+           return
+
+        try:
+            with open('/proc/irq/default_smp_affinity') as f:
+                cpulist = f.readline().strip()
+            LOG.info("default smp affinity bitmap:%s" % cpulist)
+            if len(_irqs) > 0:
+                pci_utils.write_smp_affinity_file('smp_affinity', _irqs, cpulist)
+            if len(_msi_irqs) > 0:
+                pci_utils.write_smp_affinity_file('smp_affinity', _msi_irqs, cpulist)
+        except Exception as e:
+            LOG.error("Failed to  reset smp affinity! error=%s" % e)
+
+        LOG.info("Reset smp affinity done!")
+
+    def instance_irq_pcpulist_update(self, uuid, irqs, msi_irqs, cpulist):
+        if uuid in self.inst_dict:
+            _prev = self.inst_dict[uuid]
+            # get irqs that not appear anymore.
+            _irqs = _prev[0].difference(irqs)
+            _msi_irqs = _prev[1].difference(msi_irqs)
+
+            # reset pci affinity for those pcis not used by intance anymore
+            if (len(_irqs) + len(_msi_irqs)) > 0:
+                self.reset_irq_affinity(uuid, _irqs, _msi_irqs)
+
+        self.inst_dict[uuid] = [irqs, msi_irqs, cpulist]
+        LOG.debug(self.inst_dict)
+
+    def affine_pci_dev_instance(self, instance, wait_for_irqs=True):
+        if instance is not None:
+            if instance.get_cpu_policy() == 'dedicated' and instance.get_pci_devices():
+                LOG.info("VM:%s use dedicated cpu policy!!!" % instance.name)
+                irqs, msi_irqs, cpulist = \
+                   self.affinePciIrqDriver.affine_pci_dev_irqs(instance, wait_for_irqs)
+                # record instance on which pci affinity has been applied
+                self.instance_irq_pcpulist_update(instance.uuid, irqs, msi_irqs, cpulist)
+                return
+
+        LOG.info("No need to apply PCI irq affinity for VM:%s" \
+                 % instance.name)
+
+    def audit_pci_irq_affinity(self):
+        # audit instance PCI devices periodically
+        nova = NovaProvider()
+        filters = {'vm_state': 'active',
+                   'task_state': None,
+                   'deleted': False}
+        instances = nova.get_instances(filters)
+        for inst in instances:
+            self.affine_pci_dev_instance(inst, wait_for_irqs=False)
+
+
+pciIrqAffinity = pci_irq_affinity_provider()
