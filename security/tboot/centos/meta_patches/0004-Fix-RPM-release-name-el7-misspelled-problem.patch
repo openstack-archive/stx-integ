@@ -1,0 +1,25 @@
+From 3feaff395e60ad53c9177c2f6335bd79cf3959e0 Mon Sep 17 00:00:00 2001
+From: chenlx <chenlx@fiberhome.com>
+Date: Thu, 28 Mar 2019 19:28:10 +0800
+Subject: [PATCH 4/4] Fix RPM release name "el7" misspelled problem
+
+---
+ SPECS/tboot.spec | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/SPECS/tboot.spec b/SPECS/tboot.spec
+index 931e561..ab1c385 100644
+--- a/SPECS/tboot.spec
++++ b/SPECS/tboot.spec
+@@ -1,7 +1,7 @@
+ Summary:        Performs a verified launch using Intel TXT
+ Name:           tboot
+ Version:        1.9.6
+-Release:        3.e17%{?_tis_dist}.%{tis_patch_ver}
++Release:        3.el7%{?_tis_dist}.%{tis_patch_ver}
+ Epoch:          1
+
+ Group:          System Environment/Base
+--
+2.7.4
+
