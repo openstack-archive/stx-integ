@@ -34,12 +34,12 @@ class CephManagerException(Exception):
 class CephPoolSetQuotaFailure(CephManagerException):
     message = _("Error seting the OSD pool "
                 "quota %(name)s for %(pool)s to %(value)s") \
-                + ": %(reason)s"
+                + ": %(reason)s"  # noqa: E126
 
 
 class CephPoolGetQuotaFailure(CephManagerException):
     message = _("Error geting the OSD pool quota for %(pool)s") \
-                + ": %(reason)s"
+                + ": %(reason)s"  # noqa: E126
 
 
 class CephPoolCreateFailure(CephManagerException):
