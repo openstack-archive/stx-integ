@@ -5,27 +5,26 @@ Subject: [PATCH 1/1] Install config file for each VF
 
 Signed-off-by: eric zhang <eric.zhang@windriver.com>
 ---
- quickassist/build_system/build_files/qat_service | 60 +++++++++++++++++++++---
- 1 file changed, 54 insertions(+), 6 deletions(-)
+ quickassist/build_system/build_files/qat_service | 59 +++++++++++++++++++++---
+ 1 file changed, 53 insertions(+), 6 deletions(-)
 
 diff --git a/quickassist/build_system/build_files/qat_service b/quickassist/build_system/build_files/qat_service
-index 168413b..8e2b838 100755
+index fbb3084..92cd654 100755
 --- a/quickassist/build_system/build_files/qat_service
 +++ b/quickassist/build_system/build_files/qat_service
-@@ -65,6 +65,12 @@ C3XX_DEVICE_PCI_ID_VM="19e3"
+@@ -75,6 +75,11 @@ C3XX_DEVICE_PCI_ID="19e2"
+ C3XX_DEVICE_PCI_ID_VM="19e3"
  D15XX_DEVICE_PCI_ID="6f54"
  D15XX_DEVICE_PCI_ID_VM="6f55"
- 
 +QAT_DH895XCC_NUM_VFS=32
 +QAT_DHC62X_NUM_VFS=16
 +QAT_DHD15XX_NUM_VFS=16
 +QAT_DHC3XXX_NUM_VFS=16
 +
-+
+ 
  usage() {
  echo
- echo --------------------------------------------------------
-@@ -84,7 +90,7 @@ echo --------------------------------------------------------
+@@ -95,7 +100,7 @@ echo --------------------------------------------------------
  exit 1
  }
  
@@ -34,8 +33,8 @@ index 168413b..8e2b838 100755
  
  # store the total number of each type of device
  numDh895xDevicesPF=$(lspci -n | egrep -c "$INTEL_VENDORID:$DH895_DEVICE_PCI_ID")
-@@ -193,15 +199,57 @@ case $1 in
- 
+@@ -227,11 +232,53 @@ case $1 in
+     check_sriov $2
      if [ $DO_ENABLE_SRIOV == 1 ]; then
          echo enable sriov
 +
@@ -89,22 +88,26 @@ index 168413b..8e2b838 100755
              ;;
  
   Shutdown|shutdown)
--    /usr/sbin/adf_ctl down
-+    /usr/bin/adf_ctl down
+@@ -241,7 +288,7 @@ case $1 in
+         disable_sriov $2
+     fi
+ 
+-    /usr/sbin/adf_ctl down &>/dev/null
++    /usr/bin/adf_ctl down &>/dev/null
+     modprobe -q -r qat_api
      modprobe -q -r usdm_drv
      modprobe -q -r qat_dh895xccvf
-     modprobe -q -r qat_c62xvf
-@@ -215,15 +263,15 @@ case $1 in
-             ;;
- 
-  Stop|stop)
+@@ -261,15 +308,15 @@ case $1 in
+         echo disable sriov
+         disable_sriov $2
+     fi
 -    /usr/sbin/adf_ctl $2 down
 +    /usr/bin/adf_ctl $2 down
              ;;
  
   Restart|restart)
--    /usr/sbin/adf_ctl $2 down && /usr/sbin/adf_ctl $2 up
-+    /usr/bin/adf_ctl $2 down && /usr/bin/adf_ctl $2 up
+-    /usr/sbin/adf_ctl $2 restart
++    /usr/bin/adf_ctl $2 restart
              ;;
  
   Status|status)
@@ -114,5 +117,5 @@ index 168413b..8e2b838 100755
      then
          echo "No devices found. Please start the driver using:"
 -- 
-1.8.3.1
+2.7.4
 

@@ -7,8 +7,8 @@
 Summary: Intel(r) QuickAssist Technology API
 %define pkgname qat17
 Name: %{pkgname}%{?bt_ext}
-Version: 1.0.3
-%define upstream_release 42
+Version: 4.5.0
+%define upstream_release 00034
 Release: %{upstream_release}%{?_tis_dist}.%{tis_patch_ver}
 License: GPLv2
 Group: base
@@ -30,7 +30,7 @@ BuildRequires: openssl
 %define qat_unpack_dir %{_builddir}/%{name}-%{version}
 %define qat_src_dir %{qat_unpack_dir}
 
-Source: qat1.7.upstream.l.%{version}-%{upstream_release}.tar.gz
+Source: qat1.7.l.%{version}-%{upstream_release}.tar.gz
 Source1: qat
 # Use our own service script rather than massively patching theirs
 Source2: qat_service
@@ -46,7 +46,7 @@ rm -rf %{qat_unpack_dir}
 mkdir -p %{qat_unpack_dir}
 cd %{qat_unpack_dir}
 
-gzip -dc %{_sourcedir}/qat1.7.upstream.l.%{version}-%{upstream_release}.tar.gz | tar -xvvf -
+gzip -dc %{_sourcedir}/qat1.7.l.%{version}-%{upstream_release}.tar.gz | tar -xvvf -
 if [ $? -ne 0 ]; then
   exit $?
 fi
