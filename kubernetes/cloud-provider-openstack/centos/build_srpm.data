@@ -1,0 +1,5 @@
+TAR_NAME="cloud-provider-openstack"
+COPY_LIST=" \
+  $STX_BASE/downloads/cloud-provider-openstack-c9abd15351c5d53b26b2cbf9a0d1023200e33238.tar.gz \
+"
+TIS_PATCH_VER=0
