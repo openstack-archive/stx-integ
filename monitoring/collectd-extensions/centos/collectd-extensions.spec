@@ -41,6 +41,7 @@ BuildRequires: systemd-devel
 
 Requires: systemd
 Requires: collectd
+Requires: collectd-python
 Requires: /bin/systemctl
 
 %description
