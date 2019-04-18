@@ -1,0 +1,33 @@
+From 2fc0e37678eb682c9ae2aef3c9e42ef0e7b4dcd7 Mon Sep 17 00:00:00 2001
+From: SidneyAn <ran1.an@intel.com>
+Date: Thu, 18 Apr 2019 09:15:27 +0000
+Subject: [PATCH] meta patch for
+ 0005-update-description-for-admin-and-services-projects.patch
+
+---
+ SPECS/puppet-keystone.spec | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/SPECS/puppet-keystone.spec b/SPECS/puppet-keystone.spec
+index 301002a..5ed54ae 100644
+--- a/SPECS/puppet-keystone.spec
++++ b/SPECS/puppet-keystone.spec
+@@ -14,6 +14,7 @@ Patch0001:      0001-pike-rebase-squash-titanium-patches.patch
+ Patch0002:      0002-remove-the-Keystone-admin-app.patch
+ Patch0003:      0003-remove-eventlet_bindhost-from-Keystoneconf.patch
+ Patch0004:      0004-escape-special-characters-in-bootstrap.patch
++Patch0005:      0005-update-description-for-admin-and-services-projects.patch
+ 
+ BuildArch:      noarch
+ 
+@@ -35,6 +36,7 @@ Puppet module for OpenStack Keystone
+ %patch0002 -p1
+ %patch0003 -p1
+ %patch0004 -p1
++%patch0005 -p1
+ 
+ find . -type f -name ".*" -exec rm {} +
+ find . -size 0 -exec rm {} +
+-- 
+1.8.3.1
+
