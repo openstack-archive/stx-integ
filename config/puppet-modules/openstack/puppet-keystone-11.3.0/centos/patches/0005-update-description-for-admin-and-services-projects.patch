@@ -1,0 +1,29 @@
+From 8fd87e70875015ed9562f9670cec7b0e4ff97640 Mon Sep 17 00:00:00 2001
+From: SidneyAn <ran1.an@intel.com>
+Date: Thu, 18 Apr 2019 08:58:12 +0000
+Subject: [PATCH] Update description for admin and services projects
+
+update the description of the admin and services projects created in
+the platform keystone. 
+---
+ manifests/roles/admin.pp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/manifests/roles/admin.pp b/manifests/roles/admin.pp
+index fead5f2..3a663c3 100644
+--- a/manifests/roles/admin.pp
++++ b/manifests/roles/admin.pp
+@@ -85,8 +85,8 @@ class keystone::roles::admin(
+   $admin_tenant           = 'openstack',
+   $admin_roles            = ['admin'],
+   $service_tenant         = 'services',
+-  $admin_tenant_desc      = 'admin tenant',
+-  $service_tenant_desc    = 'Tenant for the openstack services',
++  $admin_tenant_desc      = 'admin project',
++  $service_tenant_desc    = 'project for the platform services',
+   $configure_user         = true,
+   $configure_user_role    = true,
+   $admin_user_domain      = undef,
+-- 
+1.8.3.1
+
