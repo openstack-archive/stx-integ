@@ -1,6 +1,0 @@
-VERSION=2.13.1
-TAR_NAME=helm
-TAR="$TAR_NAME-v$VERSION-linux-amd64.tar.gz"
-COPY_LIST="${CGCS_BASE}/downloads/$TAR $FILES_BASE/*"
-
-TIS_PATCH_VER=1

@@ -1,5 +1,0 @@
-=========
-stx-integ
-=========
-
-StarlingX Integration
